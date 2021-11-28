@@ -55,6 +55,8 @@ module.exports = {
                     'style-loader',
                     // Translates CSS into CommonJS
                     'css-loader',
+                    "postcss-loader"
+
                 ],
             },
             {
