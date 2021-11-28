@@ -11,7 +11,7 @@ module.exports = {
     // watchOptions: {
     //     ignored: ['**/node_modules'],
     // },
-    devtool: 'source-map',
+    devtool: 'inline-source-map',
     devServer: {
         contentBase: path.join(__dirname, 'dist'),
         hot: true,
