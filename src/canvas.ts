@@ -1,8 +1,13 @@
+import { cursorCoordinates } from './utils/cursorCoordinates'
 const canvasContainer = document.getElementById('canvas-container')
 const canvas = <HTMLCanvasElement>document.createElement('canvas')
 canvas.id = 'canvas'
-canvas.width = canvasContainer.offsetWidth - 2
-canvas.height = canvasContainer.offsetHeight - 2
+const CANVAS_RIGHT_PADDING = 4
+const CANVAS_BOTTOM_PADDING = 4
+
+canvas.width = canvasContainer.offsetWidth - CANVAS_RIGHT_PADDING
+canvas.height = canvasContainer.offsetHeight - CANVAS_BOTTOM_PADDING
+
 canvasContainer.appendChild(canvas)
 const speedRange = <HTMLInputElement>document.querySelector('#cellular-automate-controls-sliders-speed-input')
 const ctx = canvas.getContext('2d')
@@ -23,41 +28,82 @@ class Cell {
   }
 }
 
+const allCellAliveStatesCombinationsByThree = [
+  [false, false, false],
+  [false, false, true],
+  [false, true, false],
+  [false, true, true],
+  [true, false, false],
+  [true, false, true],
+  [true, true, false],
+  [true, true, true],
+]
+
+const allBinaryCombinationOfLength = (length: number) => {
+  const result = []
+  for (let i = 0; i < Math.pow(2, length); i++) {
+    const binary = i.toString(2)
+    const paddedBinary = '0'.repeat(length - binary.length) + binary
+    result.push(paddedBinary.split('').map(Number))
+  }
+  return result
+}
+
+const asyncFunction = async () => {
+  let x = 0
+  for (let i = 0; i < allCellAliveStatesCombinationsByThree.length; i++) {
+    for (let j = 0; j < allCellAliveStatesCombinationsByThree[i].length; j++) {
+      // Separator between cells sets
+      let separator = 0
+      if (j === 2) {
+        separator = (canvas.width - allCellAliveStatesCombinationsByThree.length * CELL_WIDTH * 3) / (allCellAliveStatesCombinationsByThree.length - 1)
+      }
+
+      ctx.fillStyle = allCellAliveStatesCombinationsByThree[i][j] ? 'black' : 'white'
+      // Spread the cells horizontally
+      ctx.fillRect(x, 1, CELL_WIDTH - 1, CELL_HEIGHT - 1)
+      x = x + CELL_WIDTH + separator
+      // await new Promise((resolve) => setTimeout(resolve, 100))
+    }
+  }
+
+  const allPossibleRules = allBinaryCombinationOfLength(allCellAliveStatesCombinationsByThree.length)
+  x = 0
+  for (let i = 0; i < allPossibleRules.length; i++) {
+    x = CELL_WIDTH
+    for (let j = 0; j < allPossibleRules[i].length; j++) {
+      ctx.fillStyle = allPossibleRules[i][j] ? 'black' : 'white'
+      let separator = (canvas.width - 3 * CELL_WIDTH) / 7
+      // Spread the cells horizontally
+      ctx.fillRect(x, i * CELL_HEIGHT + CELL_HEIGHT * 2, CELL_WIDTH - 1, CELL_HEIGHT - 1)
+      x = x + separator
+    }
+  }
+}
+// asyncFunction()
+
 let cameraOffset = { x: canvasContainer.offsetWidth / 2, y: canvasContainer.offsetHeight / 2 }
 let cameraZoom = 1
 let MAX_ZOOM = 5
-let MIN_ZOOM = 0.1
+let MIN_ZOOM = 0.07
 let SCROLL_SENSITIVITY = 0.0005
 
 function draw() {
-  canvas.width = canvasContainer.offsetWidth
-  canvas.height = canvasContainer.offsetHeight
+  canvas.width = canvasContainer.offsetWidth - CANVAS_RIGHT_PADDING
+  canvas.height = canvasContainer.offsetHeight - CANVAS_BOTTOM_PADDING
   // Translate to the canvas centre before zooming - so you'll always zoom on what you're looking directly at
-  ctx.translate(canvasContainer.offsetWidth / 2, canvasContainer.offsetHeight / 2)
+  // ctx.translate(cursorPosition.x / 2, cursorPosition.y / 2)
   ctx.scale(cameraZoom, cameraZoom)
   ctx.translate(-canvasContainer.offsetWidth / 2 + cameraOffset.x, -canvasContainer.offsetHeight / 2 + cameraOffset.y)
   ctx.clearRect(0, 0, canvasContainer.offsetWidth, canvasContainer.offsetHeight)
-  ctx.fillStyle = '#991111'
-  drawRect(-50, -50, 100, 100)
 
-  ctx.fillStyle = '#eecc77'
-  drawRect(-35, -35, 20, 20)
-  drawRect(15, -35, 20, 20)
-  drawRect(-35, 15, 70, 20)
+  asyncFunction()
+  console.log('draw')
 
-  ctx.fillStyle = '#fff'
-  drawText('Simple Pan and Zoom Canvas', -255, -100, 32, 'courier')
-
-  ctx.rotate((-31 * Math.PI) / 180)
-  ctx.fillStyle = `#${(Math.round(Date.now() / 40) % 4096).toString(16)}`
-  drawText('Now with touch!', -110, 100, 32, 'courier')
-
-  ctx.fillStyle = '#fff'
-  ctx.rotate((31 * Math.PI) / 180)
-
-  drawText('Wow, you found me!', -260, -2000, 48, 'courier')
-
-  requestAnimationFrame(draw)
+  // setTimeout(function () {
+  requestAnimationFrame(() => draw())
+  // animating/drawing code goes here
+  // }, 1000 / parseInt(speedRange.value))
 }
 
 // Gets the relevant location from a mouse or single touch event
@@ -67,15 +113,6 @@ function getEventLocation(e: any) {
   } else if (e.clientX && e.clientY) {
     return { x: e.clientX, y: e.clientY }
   }
-}
-
-function drawRect(x: number, y: number, width: number, height: number) {
-  ctx.fillRect(x, y, width, height)
-}
-
-function drawText(text: string, x: number, y: number, size: number, font: string) {
-  ctx.font = `${size}px ${font}`
-  ctx.fillText(text, x, y)
 }
 
 let isDragging = false
@@ -136,11 +173,8 @@ function adjustZoom(zoomAmount: number, zoomFactor: number) {
       console.log(zoomFactor)
       cameraZoom = zoomFactor * lastZoom
     }
-
     cameraZoom = Math.min(cameraZoom, MAX_ZOOM)
     cameraZoom = Math.max(cameraZoom, MIN_ZOOM)
-
-    console.log(zoomAmount)
   }
 }
 
@@ -153,59 +187,13 @@ canvas.addEventListener('touchmove', (e) => handleTouch(e, onPointerMove))
 canvas.addEventListener('wheel', (e) => adjustZoom(e.deltaY * SCROLL_SENSITIVITY, null))
 
 // Ready, set, go
+
 draw()
 
-// const allCellAliveStatesCombinationsByThree = [
-//   [false, false, false],
-//   [false, false, true],
-//   [false, true, false],
-//   [false, true, true],
-//   [true, false, false],
-//   [true, false, true],
-//   [true, true, false],
-//   [true, true, true],
-// ]
+const image = canvas.toDataURL('image/png', 1.0)
 
-// const allBinaryCombinationOfLength = (length: number) => {
-//   const result = []
-//   for (let i = 0; i < Math.pow(2, length); i++) {
-//     const binary = i.toString(2)
-//     const paddedBinary = '0'.repeat(length - binary.length) + binary
-//     result.push(paddedBinary.split('').map(Number))
-//   }
-//   return result
-// }
-
-// const asyncFunction = async () => {
-//   let x = 0
-//   // for (let i = 0; i < allCellAliveStatesCombinationsByThree.length; i++) {
-//   //   for (let j = 0; j < allCellAliveStatesCombinationsByThree[i].length; j++) {
-//   //     // Separator between cells sets
-//   //     let separator = 0
-//   //     if (j === 2) {
-//   //       separator = (canvas.width - allCellAliveStatesCombinationsByThree.length * CELL_WIDTH * 3) / (allCellAliveStatesCombinationsByThree.length - 1)
-//   //     }
-
-//   //     ctx.fillStyle = allCellAliveStatesCombinationsByThree[i][j] ? 'black' : 'white'
-//   //     // Spread the cells horizontally
-//   //     ctx.fillRect(x, 1, CELL_WIDTH - 1, CELL_HEIGHT - 1)
-//   //     x = x + CELL_WIDTH + separator
-//   //     await new Promise((resolve) => setTimeout(resolve, 100))
-//   //   }
-//   // }
-
-//   const allPossibleRules = allBinaryCombinationOfLength(allCellAliveStatesCombinationsByThree.length)
-
-//   for (let i = 0; i < allPossibleRules.length; i++) {
-//     for (let j = 0; j < allPossibleRules[i].length; j++) {
-//       ctx.fillStyle = allPossibleRules[i][j] ? 'black' : 'white'
-
-//       // Spread the cells horizontally
-//       ctx.fillRect(j * CELL_WIDTH, i * CELL_HEIGHT, CELL_WIDTH - 1, CELL_HEIGHT - 1)
-//     }
-//   }
-// }
-// asyncFunction()
+const link = document.getElementsByClassName('download-image')[0] as HTMLAnchorElement
+link.href = image
 
 // // Draw rectangle
 // // ctx.fillStyle = "black";

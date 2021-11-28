@@ -5,6 +5,7 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 module.exports = {
     entry: {
         index: './src/index.ts',
+        automata: './src/automata.ts'
 
     },
     // watch: true,
@@ -70,6 +71,12 @@ module.exports = {
     },
     plugins: [
         new HtmlWebpackPlugin({ template: './public/index.html', minify: false, chunks: ['index'] }),
+        new HtmlWebpackPlugin({
+            template: './public/automata.html',
+            minify: false,
+            filename: 'automata.html',
+            chunks: ['automata']
+        }),
         // new CopyWebpackPlugin({
         //     patterns: [{ from: 'src/assets', to: 'assets' }],
         // }),
