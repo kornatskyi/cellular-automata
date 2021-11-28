@@ -79,9 +79,9 @@ module.exports = {
             filename: 'automata.html',
             chunks: ['automata']
         }),
-        // new CopyWebpackPlugin({
-        //     patterns: [{ from: 'src/assets', to: 'assets' }],
-        // }),
+        new CopyWebpackPlugin({
+            patterns: [{ from: 'src/assets', to: './' }],
+        }),
     ],
 };
 
