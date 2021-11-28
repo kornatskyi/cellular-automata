@@ -6,10 +6,35 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home page</title>
+
 <script defer src="index.js"></script></head>
 
 <body>
-    <h1>Hello Worldssffsdfghf</h1>
+    <!-- Cellular automate -->
+    <div id="cellular-automate">
+        <div id="cellular-automate-canvas">
+            <div id="canvas-container"></div>
+        </div>
+
+        <div id="cellular-automate-controls">
+            <div id="cellular-automate-controls-buttons">
+                <button id="cellular-automate-controls-buttons-start">Start</button>
+                <button id="cellular-automate-controls-buttons-stop">Stop</button>
+                <button id="cellular-automate-controls-buttons-reset">Reset</button>
+            </div>
+            <div id="cellular-automate-controls-sliders">
+                <div id="cellular-automate-controls-sliders-speed">
+                    <label for="cellular-automate-controls-sliders-speed-input">Speed</label>
+                    <input id="cellular-automate-controls-sliders-speed-input" type="range" min="1" max="60" value="1"
+                        step="1">
+                    <span class="speed-range-value">1</span>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- /Cellular automate -->
 </body>
 
 </html>

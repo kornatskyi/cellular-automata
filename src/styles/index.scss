@@ -1,0 +1,22 @@
+body {}
+
+
+#cellular-automate-canvas {
+    width          : 100%;
+    display        : flex;
+    justify-content: center;
+    padding        : 20px 0;
+
+    #canvas-container {
+
+
+        border: 1px solid #000;
+        width : 1000px;
+        height: 700px;
+
+        canvas {
+            background-color: rgb(255, 246, 235);
+        }
+    }
+
+}

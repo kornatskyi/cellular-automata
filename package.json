@@ -4,7 +4,7 @@
   "description": "Cellural Automata implementation",
   "private": true,
   "scripts": {
-    "start": "webpack serve --open",
+    "start": "webpack serve --hot",
     "build": "webpack --config webpack.config.js --mode production",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
