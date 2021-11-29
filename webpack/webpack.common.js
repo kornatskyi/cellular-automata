@@ -3,32 +3,13 @@ const HtmlWebpackPlugin = require('html-webpack-plugin'); //installed via npm
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
-    mode: 'development',
     entry: {
         index: './src/index.ts',
         rules: './src/pages/rules/rules.ts',
         automata: './src/pages/automata/automata.ts'
 
     },
-    // watch: true,
-    // watchOptions: {
-    //     ignored: ['**/node_modules'],
-    // },
     devtool: 'inline-source-map',
-    devServer: {
-        contentBase: path.join(__dirname, 'dist'),
-        hot: true,
-        port: 8080,
-        host: '127.0.0.1',
-    },
-
-    output: {
-        // [contenthash] creates unique file name to prevent browser from storing old version of file in cache 
-        filename: '[name].[contenthash].js',
-        path: path.resolve(__dirname, 'dist'),
-    },
-
-
     module: {
         rules: [
             {
