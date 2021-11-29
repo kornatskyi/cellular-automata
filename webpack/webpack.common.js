@@ -1,6 +1,6 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin'); //installed via npm
-const CopyWebpackPlugin = require('copy-webpack-plugin');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 module.exports = {
     entry: {
@@ -44,13 +44,19 @@ module.exports = {
 
                 ],
             },
+
             {
-                test: /\.(ttf|eot|svg)(\?v=[0-9]\.[0-9]\.[0-9])?$/,
-                loader: 'file-loader',
-            },
-            //removed svg from regex , for some reason url-loader brokes svg import
-            { test: /\.(png|jpg|jpeg|gif)$/, loader: 'url-loader' },
-            { test: /\.woff(2)?(\?v=[0-9]\.[0-9]\.[0-9])?$/, loader: 'url-loader' },
+                test: /\.html$/,
+                use: [
+                    {
+                        loader: 'html-loader',
+                        options: {
+                            minimize: true
+                        }
+                    }
+                ]
+            }
+
         ],
     },
     resolve: {
@@ -70,9 +76,7 @@ module.exports = {
             filename: 'rules.html',
             chunks: ['rules']
         }),
-        new CopyWebpackPlugin({
-            patterns: [{ from: 'src/assets', to: './' }],
-        }),
+        // new CleanWebpackPlugin()
     ],
 };
 

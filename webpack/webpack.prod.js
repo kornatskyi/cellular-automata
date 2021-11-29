@@ -15,6 +15,7 @@ module.exports = merge(common, {
         // [contenthash] creates unique file name to prevent browser from storing old version of file in cache 
         filename: '[name].[contenthash].js',
         path: path.resolve(__dirname, '..', 'dist'),
+        assetModuleFilename: "./images/[name].[hash].[ext]",
     },
 
 })
