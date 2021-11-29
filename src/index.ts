@@ -1,6 +1,5 @@
 // const dpr = window.devicePixelRatio;
 import './styles/index.scss'
 import './styles/tailwind-global.css'
-import './controlPanel'
-import './canvas'
+import './components/controlPanel'
 import './utils/cursorCoordinates'

@@ -3,9 +3,11 @@ const HtmlWebpackPlugin = require('html-webpack-plugin'); //installed via npm
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
+    mode: 'development',
     entry: {
         index: './src/index.ts',
-        automata: './src/automata.ts'
+        rules: './src/pages/rules/rules.ts',
+        automata: './src/pages/automata/automata.ts'
 
     },
     // watch: true,
@@ -21,10 +23,11 @@ module.exports = {
     },
 
     output: {
+        // [contenthash] creates unique file name to prevent browser from storing old version of file in cache 
+        filename: '[name].[contenthash].js',
         path: path.resolve(__dirname, 'dist'),
-        filename: '[name].js',
     },
-    mode: 'development',
+
 
     module: {
         rules: [
@@ -39,6 +42,7 @@ module.exports = {
             },
             {
                 test: /\.s[ac]ss$/i,
+                // order of loaders matters
                 use: [
                     // Creates `style` nodes from JS strings
                     'style-loader',
@@ -79,8 +83,28 @@ module.exports = {
             filename: 'automata.html',
             chunks: ['automata']
         }),
+        new HtmlWebpackPlugin({
+            template: './public/rules.html',
+            minify: false,
+            filename: 'rules.html',
+            chunks: ['rules']
+        }),
         new CopyWebpackPlugin({
             patterns: [{ from: 'src/assets', to: './' }],
         }),
     ],
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
