@@ -12,16 +12,16 @@ module.exports = merge(common, {
     },
     devtool: 'inline-source-map',
     devServer: {
-        contentBase: '../dist/',
-        watchContentBase: true,
-        // hot: true,
-        hotOnly: true,
+        // Open the page in the browser
+        // open: true,
+
+
+        historyApiFallback: true,
+        compress: true,
         hot: true,
         port: 8080,
         host: '127.0.0.1',
-        // progress: true,
-        // compress: true,
-
+        compress: true,
     },
 
     output: {

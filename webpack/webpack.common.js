@@ -63,6 +63,7 @@ module.exports = {
         extensions: ['.tsx', '.ts', '.js'],
     },
     plugins: [
+        // new CleanWebpackPlugin(),
         new HtmlWebpackPlugin({ template: './public/index.html', minify: false, chunks: ['index'] }),
         new HtmlWebpackPlugin({
             template: './public/automata.html',
@@ -76,7 +77,6 @@ module.exports = {
             filename: 'rules.html',
             chunks: ['rules']
         }),
-        // new CleanWebpackPlugin()
     ],
 };
 
