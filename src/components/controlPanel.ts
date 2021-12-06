@@ -34,13 +34,27 @@ class Button {
   parent: HTMLElement
   children: HTMLElement[]
 
-  constructor(parent: HTMLElement) {
+  constructor(parent: HTMLElement = null) {
     this.parent = parent
     this.children = []
   }
 
   render() {
-    return `<button class="button">I'm a bsdfsdfutton</button>`
+    return `<button class="button border-2">I'm a button</button>`
+  }
+}
+
+class Range {
+  parent: HTMLElement
+  children: HTMLElement[]
+
+  constructor(parent: HTMLElement = null) {
+    this.parent = parent
+    this.children = []
+  }
+
+  render() {
+    return `<input type="range" min="0" max="100" value="50" class="slider" id="myRange">`
   }
 }
 
@@ -57,6 +71,7 @@ class ControlPanel {
     return `<div id="cellular-automate-controls" class="text-cyan-500">Hello world
     
         ${new Button(this.parent).render()}
+        ${new Range(this.parent).render()}
     
     </div>`
   }
