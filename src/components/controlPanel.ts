@@ -4,6 +4,8 @@
 // speedRange.addEventListener('input', function () {
 //   speedRangeValueElement.innerText = `${this.value}`
 // })
+import { html } from '../Utils/inlineHTML'
+// import {html} from 'lit-html'
 
 class App {
   body: HTMLElement
@@ -19,10 +21,7 @@ class App {
   }
 
   render() {
-    console.log('rendering')
-
     this.children.forEach((child) => {
-      console.log('🚀 ~ child', child)
       this.body.innerHTML += child
     })
   }
@@ -40,7 +39,7 @@ class Button {
   }
 
   render() {
-    return `<button class="button border-2">I'm a button</button>`
+    return html`<button class="button border-2">I'm a button</button>`
   }
 }
 
@@ -54,7 +53,7 @@ class Range {
   }
 
   render() {
-    return `<input type="range" min="0" max="100" value="50" class="slider" id="myRange">`
+    return html`<input type="range" min="0" max="100" value="50" class="slider" id="myRange" />`
   }
 }
 
@@ -68,12 +67,7 @@ class ControlPanel {
   }
 
   render() {
-    return `<div id="cellular-automate-controls" class="text-cyan-500">Hello world
-    
-        ${new Button(this.parent).render()}
-        ${new Range(this.parent).render()}
-    
-    </div>`
+    return html`<div id="cellular-automate-controls" class="text-cyan-500">Hello world ${new Button(this.parent).render()} ${new Range(this.parent).render()}</div>`
   }
 }
 

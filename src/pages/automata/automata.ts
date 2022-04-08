@@ -14,4 +14,3 @@ const speedRange = <HTMLInputElement>document.querySelector('#cellular-automate-
 const ctx = canvas.getContext('2d')
 
 const header = document.querySelector('header')
-console.log(header)

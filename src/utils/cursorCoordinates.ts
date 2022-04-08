@@ -1,4 +1,4 @@
-console.log(document.getElementById('canvas-container'))
+// console.log(document.getElementById('canvas-container'))
 
 document.getElementById('canvas-container').addEventListener('mousemove', (e) => {
   cursor.setInputValue('x', e.offsetX)

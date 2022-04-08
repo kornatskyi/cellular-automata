@@ -47,6 +47,7 @@
     "webpack-merge": "^5.8.0"
   },
   "dependencies": {
+    "lit-html": "^2.2.2",
     "lodash": "^4.17.21",
     "postcss-import": "^14.0.2"
   }
