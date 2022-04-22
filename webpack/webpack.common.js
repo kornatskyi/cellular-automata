@@ -5,9 +5,6 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 module.exports = {
     entry: {
         index: './src/index.ts',
-        rules: './src/pages/rules/rules.ts',
-        automata: './src/pages/automata/automata.ts'
-
     },
     devtool: 'inline-source-map',
     module: {
@@ -65,18 +62,6 @@ module.exports = {
     plugins: [
         // new CleanWebpackPlugin(),
         new HtmlWebpackPlugin({ template: './public/index.html', minify: false, chunks: ['index'] }),
-        new HtmlWebpackPlugin({
-            template: './public/automata.html',
-            minify: false,
-            filename: 'automata.html',
-            chunks: ['automata']
-        }),
-        new HtmlWebpackPlugin({
-            template: './public/rules.html',
-            minify: false,
-            filename: 'rules.html',
-            chunks: ['rules']
-        }),
     ],
 };
 

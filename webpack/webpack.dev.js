@@ -1,13 +1,12 @@
 const path = require('path');
 const common = require('./webpack.common');
 const { merge } = require('webpack-merge');
+const webpack = require('webpack');
 
 module.exports = merge(common, {
     mode: 'development',
     entry: {
         index: './src/index.ts',
-        rules: './src/pages/rules/rules.ts',
-        automata: './src/pages/automata/automata.ts'
 
     },
     devtool: 'inline-source-map',
@@ -16,12 +15,12 @@ module.exports = merge(common, {
         // open: true,
 
 
-        historyApiFallback: true,
-        compress: true,
-        hot: true,
+        // historyApiFallback: true,
+        // compress: true,
+        hot: false,
         port: 8080,
         host: '127.0.0.1',
-        compress: true,
+
     },
 
     output: {
@@ -31,6 +30,9 @@ module.exports = merge(common, {
 
 
     },
+    plugins: [
+        new webpack.HotModuleReplacementPlugin(),
+    ]
 
 
 
