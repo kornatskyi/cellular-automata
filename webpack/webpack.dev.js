@@ -7,6 +7,7 @@ module.exports = merge(common, {
     mode: 'development',
     entry: {
         index: './src/index.ts',
+        // Runtime code for hot module replacement
 
     },
     devtool: 'inline-source-map',
@@ -17,7 +18,7 @@ module.exports = merge(common, {
 
         // historyApiFallback: true,
         // compress: true,
-        hot: false,
+        hot: true,
         port: 8080,
         host: '127.0.0.1',
 
@@ -27,8 +28,6 @@ module.exports = merge(common, {
         filename: '[name].js',
         path: path.resolve(__dirname, '..', 'dist'),
         assetModuleFilename: "./images/[name].[hash].[ext]",
-
-
     },
     plugins: [
         new webpack.HotModuleReplacementPlugin(),

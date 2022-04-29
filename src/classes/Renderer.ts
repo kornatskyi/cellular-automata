@@ -1,6 +1,10 @@
+import { DrawElement } from '../interfaces/Rendering'
+
 export class Renderer {
   static isRendering = false
-  static render() {
+  static thingsToDraw: DrawElement[]
+
+  static start() {
     if (!Renderer.isRendering) {
       // Make render function singletons
       Renderer.isRendering = true
@@ -32,7 +36,9 @@ export class Renderer {
         ctx.translate(-canvasContainer.offsetWidth / 2 + cameraOffset.x, -canvasContainer.offsetHeight / 2 + cameraOffset.y)
         ctx.clearRect(0, 0, canvasContainer.offsetWidth, canvasContainer.offsetHeight)
 
-        new Rules(ctx).draw()
+        Renderer.thingsToDraw.forEach((element) => {
+          element.draw(ctx)
+        })
         console.log('draw')
 
         // setTimeout(function () {
@@ -126,72 +132,6 @@ export class Renderer {
       render()
     } else {
       console.log('Already rendering!')
-    }
-  }
-}
-
-class Rules {
-  ctx: CanvasRenderingContext2D
-  private CELL_WIDTH = 20
-  private CELL_HEIGHT = 20
-  private WIDTH = 700
-
-  private allCombinationOfThreeCells = [
-    [false, false, false],
-    [false, false, true],
-    [false, true, false],
-    [false, true, true],
-    [true, false, false],
-    [true, false, true],
-    [true, true, false],
-    [true, true, true],
-  ]
-
-  constructor(ctx: CanvasRenderingContext2D) {
-    this.ctx = ctx
-  }
-
-  private allBinaryCombinationOfLength(length: number) {
-    const result = []
-    for (let i = 0; i < Math.pow(2, length); i++) {
-      const binary = i.toString(2)
-      const paddedBinary = '0'.repeat(length - binary.length) + binary
-      result.push(paddedBinary.split('').map(Number))
-    }
-    return result
-  }
-
-  public draw() {
-    let x = 0
-    for (let i = 0; i < this.allCombinationOfThreeCells.length; i++) {
-      for (let j = 0; j < this.allCombinationOfThreeCells[i].length; j++) {
-        // Separator between cells sets
-        let separator = 0
-        if (j === 2) {
-          separator = (this.WIDTH - this.allCombinationOfThreeCells.length * this.CELL_WIDTH * 3) / (this.allCombinationOfThreeCells.length - 1)
-        }
-
-        this.ctx.fillStyle = this.allCombinationOfThreeCells[i][j] ? 'black' : 'white'
-        // Spread the cells horizontally
-        this.ctx.fillRect(x, 1, this.CELL_WIDTH - 1, this.CELL_HEIGHT - 1)
-        x = x + this.CELL_WIDTH + separator
-        // await new Promise((resolve) => setTimeout(resolve, 100))
-      }
-    }
-
-    const allPossibleRules = this.allBinaryCombinationOfLength(this.allCombinationOfThreeCells.length)
-
-    x = 0
-
-    for (let i = 0; i < allPossibleRules.length; i++) {
-      x = this.CELL_WIDTH
-      for (let j = 0; j < allPossibleRules[i].length; j++) {
-        this.ctx.fillStyle = allPossibleRules[i][j] ? 'black' : 'white'
-        let separator = (this.WIDTH - 3 * this.CELL_WIDTH) / 7
-        // Spread the cells horizontally
-        this.ctx.fillRect(x, i * this.CELL_HEIGHT + this.CELL_HEIGHT * 2, this.CELL_WIDTH - 1, this.CELL_HEIGHT - 1)
-        x = x + separator
-      }
     }
   }
 }
