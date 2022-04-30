@@ -1,26 +1,27 @@
 import { DrawElement } from '../interfaces/Rendering'
-
-type Position = {
-  x: number
-  y: number
-}
+import { Position } from '../types/global'
 
 export class Cell implements DrawElement {
   width: number
   height: number
-  color: string
+  color: boolean
   position: Position
 
-  constructor() {
-    this.width = 40
-    this.height = 40
-    this.color = 'green'
-    this.position = { x: 100, y: 100 }
+  constructor(color: boolean, position: Position) {
+    this.width = 20
+    this.height = 20
+    this.color = color
+    this.position = position
   }
 
   draw(ctx: CanvasRenderingContext2D): void {
     // ctx.translate(this.position.x, this.position.y)
-    ctx.fillStyle = this.color
+    ctx.fillStyle = this.color ? 'black' : 'white'
     ctx.fillRect(this.position.x, this.position.y, this.width, this.height)
+  }
+
+  setPosition(position: Position) {
+    this.position.x = position.x
+    this.position.y = position.y
   }
 }

@@ -30,5 +30,24 @@ module.exports = {
     'react/jsx-uses-react': 'off',
     'react/react-in-jsx-scope': 'off',
     '@typescript-eslint/explicit-module-boundary-types': 'off',
+    "array-element-newline": ["error", {
+      "ArrayExpression": "always",
+      "ArrayPattern": { "minItems": 3 },
+    }],
+    // brake array elements with newline
+    "array-bracket-newline": ["error", {
+      "multiline": true,
+      "minItems": 3,
+      "consistent": true,
+    }],
+    // brake object elements with newline
+    "object-curly-newline": ["error", {
+      "ObjectExpression": { "minProperties": 3 },
+      "ObjectPattern": { "minProperties": 3 },
+      "ImportDeclaration": { "minProperties": 3 },
+      "ExportDeclaration": { "minProperties": 3 },
+    }],
+
   },
+
 }

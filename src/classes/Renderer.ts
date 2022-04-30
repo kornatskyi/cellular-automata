@@ -3,6 +3,7 @@ import { DrawElement } from '../interfaces/Rendering'
 export class Renderer {
   static isRendering = false
   static thingsToDraw: DrawElement[]
+  static fps: number = 30
 
   static start() {
     if (!Renderer.isRendering) {
@@ -18,8 +19,6 @@ export class Renderer {
 
       canvasContainer.appendChild(canvas)
       const ctx = canvas.getContext('2d')
-
-      // asyncFunction()
 
       let cameraOffset = { x: canvasContainer.offsetWidth / 2, y: canvasContainer.offsetHeight / 2 }
       let cameraZoom = 1
@@ -41,10 +40,10 @@ export class Renderer {
         })
         console.log('draw')
 
-        // setTimeout(function () {
-        requestAnimationFrame(() => render())
-        // animating/drawing code goes here
-        // }, 1000 / parseInt(speedRange.value))
+        setTimeout(function () {
+          requestAnimationFrame(() => render())
+          //  animating/drawing code goes here
+        }, 1000 / Renderer.fps)
       }
 
       // Gets the relevant location from a mouse or single touch event
