@@ -17,9 +17,17 @@ const getEventLocation = (e: TouchEvent | MouseEvent): Position => {
 
   throw new Error("Wrong event! in getEventLocation(e: TouchEvent | MouseEvent) method")
 }
+
+
+enum RenderingState {
+  START,
+  STOP,
+  RESTART
+}
+
 export class Renderer {
   static _instance: Renderer;
-  private fps = 1;
+  private fps = 60;
   private thingsToDraw: DrawElement[] = [];
 
   private canvas: HTMLCanvasElement;
@@ -38,15 +46,14 @@ export class Renderer {
   private initialPinchDistance: number | null = null;
   private lastZoom: number;
 
-  constructor(thingsToDraw: DrawElement[]) {
+  private renderingState = RenderingState.STOP
+
+  constructor() {
     // Make Renderer singleton 
     if (Renderer._instance) {
       throw new Error("Singleton classes can't be instantiated more than once.")
     }
     Renderer._instance = this;
-
-    // Populating things we are going to draw 
-    this.thingsToDraw = thingsToDraw
 
     // This element will be used as a container for canvas
     this.canvasContainer =
@@ -150,32 +157,72 @@ export class Renderer {
     this.canvas.addEventListener("touchmove", (e) => handleTouch(e, onPointerMove));
     this.canvas.addEventListener("wheel", (e) => adjustZoom(e.deltaY * this.SCROLL_SENSITIVITY, null));
 
+    this.start();
+  }
+
+  addThingsToDraw(thingsToDraw: DrawElement[]): void {
+    this.thingsToDraw.push(...thingsToDraw);
+  }
+
+  clearDrawingList(): void {
+    this.thingsToDraw = []
+  }
+
+  restart(): void {
+    this.clearDrawingList()
+    this.renderingState = RenderingState.RESTART
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+  }
+
+  stop(): void {
+    this.renderingState = RenderingState.STOP
+  }
+
+  start(): void {
     // Ready, set, go
+    this.renderingState = RenderingState.START
     this.render();
   }
 
-
   // Recursive function which is responsible for rendering all DrawElements to canvas
   render() {
-    this.canvas.width = this.canvasContainer.offsetWidth;
-    this.canvas.height = this.canvasContainer.offsetHeight;
-    // Translate to the canvas centre before zooming - so you'll always zoom on what you're looking directly at
-    // ctx.translate(cursorPosition.x / 2, cursorPosition.y / 2)
-    this.ctx.scale(this.cameraZoom, this.cameraZoom);
-    this.ctx.translate(-this.canvasContainer.offsetWidth / 2 + this.cameraOffset.x, -this.canvasContainer.offsetHeight / 2 + this.cameraOffset.y);
-    this.ctx.clearRect(0, 0, this.canvasContainer.offsetWidth, this.canvasContainer.offsetHeight);
 
-    this.thingsToDraw.forEach((element) => {
-      element.draw(this.ctx);
-    });
-    console.log("draw");
+    if (this.renderingState === RenderingState.START) {
 
-    // need to bind callback function to this instance
-    setTimeout((function () {
-      requestAnimationFrame(() => this.render());
-    }).bind(this), 1000 / this.fps);
+      this.canvas.width = this.canvasContainer.offsetWidth;
+      this.canvas.height = this.canvasContainer.offsetHeight;
+      // Translate to the canvas centre before zooming - so you'll always zoom on what you're looking directly at
+      // ctx.translate(cursorPosition.x / 2, cursorPosition.y / 2)
+      this.ctx.scale(this.cameraZoom, this.cameraZoom);
+      this.ctx.translate(-this.canvasContainer.offsetWidth / 2 + this.cameraOffset.x, -this.canvasContainer.offsetHeight / 2 + this.cameraOffset.y);
+      this.ctx.clearRect(0, 0, this.canvasContainer.offsetWidth, this.canvasContainer.offsetHeight);
+
+      this.thingsToDraw?.forEach((element) => {
+        element.draw(this.ctx);
+      });
+      console.log("draw");
+
+      // need to bind callback function to this instance
+      setTimeout((function () {
+        requestAnimationFrame(() => this.render());
+      }).bind(this), 1000 / (this.fps || 1));
+
+    } else if (this.renderingState === RenderingState.RESTART) {
+      return;
+    }
+
+
+
   }
 
+  static getInstance(): Renderer {
+    if (Renderer._instance) {
+      return Renderer._instance
+    } else {
+      throw Error("No instance of Renderer was created!")
+    }
+  }
   // Gets the relevant location from a mouse or single touch event
 
 

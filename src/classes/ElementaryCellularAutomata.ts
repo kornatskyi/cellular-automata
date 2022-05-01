@@ -8,10 +8,18 @@ const CELL_WIDTH = 20;
 export class ElementaryCellularAutomata implements DrawElement {
 	cells: Cell[][];
 	rule: Rule = new Rule(false, true, true, true, true, false, false, false);
-	initialPosition: Position = { x: 100, y: 400 };
+	initialPosition: Position = { x: 800, y: 0 };
 	generation = 0;
 
-	constructor() {
+	interval: NodeJS.Timer
+	constructor();
+	constructor(rule?: Rule) {
+		this.initAutomaton(rule);
+	}
+
+	initAutomaton(rule?: Rule) {
+		this.rule = rule ?? this.rule
+
 		this.cells = [
 			[
 				new Cell(false, {
@@ -29,12 +37,35 @@ export class ElementaryCellularAutomata implements DrawElement {
 	}
 
 	draw(ctx: CanvasRenderingContext2D): void {
+
+		// Rendering elements on the regular rendering speed
 		for (let i = 0; i < this.cells.length; i++) {
 			for (let j = 0; j < this.cells[i].length; j++) {
 				this.cells[i][j].draw(ctx);
 			}
 		}
-		if (this.generation < 100) {
+	}
+
+	stopAutomaton() {
+		clearInterval(this.interval)
+	}
+
+	resetAutomaton(rule = this.rule) {
+		this.initAutomaton(rule)
+	}
+
+
+	startAutomaton() {
+		this.generate();
+
+		this.interval = setInterval((() => {
+			this.generate()
+		}).bind(this), 1000 / 60)
+	}
+
+	generate() {
+		// When making calculation of new cell generation using timeout to slow down generation rate
+		if (this.generation < 10000) {
 			const middleCells: Cell[] = [];
 
 			for (let i = 0; i < this.cells[this.generation].length - 2; i++) {
@@ -63,9 +94,10 @@ export class ElementaryCellularAutomata implements DrawElement {
 			];
 
 			this.cells.push(newGeneration);
-
 			this.generation++;
 		}
+
+
 	}
 
 	calculateNextCell(left: Cell, middle: Cell, right: Cell): Cell {

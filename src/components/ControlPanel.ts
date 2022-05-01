@@ -1,5 +1,8 @@
 import { html } from '../utils/inlineHTML'
 import Icon from '../assets/logo.svg'
+import { Renderer } from '../classes/Renderer';
+import { Rule } from '../classes/Rule';
+import { ElementaryCellularAutomata } from '../classes/ElementaryCellularAutomata';
 
 const allCombinationOfThreeCells = [
     [false, false, false],
@@ -13,8 +16,22 @@ const allCombinationOfThreeCells = [
 ];
 
 export class ControlPanel extends HTMLElement {
+    renderer: Renderer
+    elementaryCellularAutomata: ElementaryCellularAutomata
+    rule = new Rule(false, false, false, false, false, false, false, false,);
+    started = false
     constructor() {
         super()
+
+        try {
+            this.renderer = Renderer.getInstance();
+        } catch (e) {
+            console.log("Creating new Renderer instance in ControlPanel");
+            this.renderer = new Renderer();
+        }
+
+
+
         this.attachShadow({ mode: 'open' })
 
         const style = html`
@@ -88,7 +105,8 @@ export class ControlPanel extends HTMLElement {
 
 
         // filling out ruleContainer
-        for (const threeCellsValues of allCombinationOfThreeCells) {
+
+        allCombinationOfThreeCells.forEach((threeCellsValues, i) => {
             const cell = document.createElement('div')
             const threeCells = document.createElement('div')
             const cellsBlock = document.createElement('div')
@@ -107,27 +125,65 @@ export class ControlPanel extends HTMLElement {
             const resultCell = document.createElement('div');
 
             resultCell.className = 'cell resultCell'
-            resultCell.style.backgroundColor = 'red'
+            resultCell.style.backgroundColor = 'black'
+
+            // Change rule
+            resultCell.onclick = () => {
+                this.rule.setRuleByIndex(i, !this.rule.getRuleInFormOfBooleans()[i]);
+                resultCell.style.backgroundColor = this.rule.getRuleInFormOfBooleans()[i] ? 'white' : 'black';
+            }
 
             cellsBlock.appendChild(threeCells);
             cellsBlock.appendChild(resultCell)
             ruleContainer.appendChild(cellsBlock)
-
-        }
+        })
         // Appending Rule Container 
         wrapper.appendChild(ruleContainer)
 
         const buttons = document.createElement('div')
         buttons.className = "buttons"
 
-        const restart = buttons.appendChild(document.createElement('button'))
-        restart.textContent = 'Restart'
-
+        const reset = buttons.appendChild(document.createElement('button'))
         const stop = buttons.appendChild(document.createElement('button'))
-        stop.textContent = 'Stop'
-
         const start = buttons.appendChild(document.createElement('button'))
         start.textContent = 'Start'
+        stop.textContent = 'Stop'
+        reset.textContent = 'Reset'
+        reset.disabled = true
+        stop.disabled = true
+
+
+        reset.onclick = () => {
+            console.log(" ~ ", "Reset")
+            this.elementaryCellularAutomata.resetAutomaton();
+            this.started = false
+            start.disabled = false;
+            stop.disabled = true
+        }
+
+        stop.onclick = () => {
+            console.log(" ~ ", "Stop")
+
+            this.elementaryCellularAutomata.stopAutomaton();
+            this.started = false
+            start.disabled = false
+
+        }
+
+        start.onclick = () => {
+            this.elementaryCellularAutomata = new ElementaryCellularAutomata();
+            console.log(this.rule);
+
+            this.elementaryCellularAutomata.setRule(this.rule)
+            this.renderer.addThingsToDraw([this.elementaryCellularAutomata])
+
+            this.elementaryCellularAutomata.startAutomaton()
+            console.log("🚀 ~ ", "Start")
+            this.started = true
+            start.disabled = this.started
+            stop.disabled = false
+            reset.disabled = false
+        }
 
 
         wrapper.appendChild(buttons)
