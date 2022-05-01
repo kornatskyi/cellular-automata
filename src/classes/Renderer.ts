@@ -1,136 +1,182 @@
-import { DrawElement } from '../interfaces/Rendering'
+import { DrawElement } from "../interfaces/Rendering";
+import { Position } from "../types/global";
 
-export class Renderer {
-  static isRendering = false
-  static thingsToDraw: DrawElement[]
-  static fps: number = 30
 
-  static start() {
-    if (!Renderer.isRendering) {
-      // Make render function singletons
-      Renderer.isRendering = true
+const getEventLocation = (e: TouchEvent | MouseEvent): Position => {
 
-      const canvasContainer = document.getElementById('canvas-container')
-      const canvas = <HTMLCanvasElement>document.createElement('canvas')
-      canvas.id = 'canvas'
-
-      canvas.width = canvasContainer.offsetWidth
-      canvas.height = canvasContainer.offsetHeight
-
-      canvasContainer.appendChild(canvas)
-      const ctx = canvas.getContext('2d')
-
-      let cameraOffset = { x: canvasContainer.offsetWidth / 2, y: canvasContainer.offsetHeight / 2 }
-      let cameraZoom = 1
-      let MAX_ZOOM = 5
-      let MIN_ZOOM = 0.07
-      let SCROLL_SENSITIVITY = 0.0005
-
-      function render() {
-        canvas.width = canvasContainer.offsetWidth
-        canvas.height = canvasContainer.offsetHeight
-        // Translate to the canvas centre before zooming - so you'll always zoom on what you're looking directly at
-        // ctx.translate(cursorPosition.x / 2, cursorPosition.y / 2)
-        ctx.scale(cameraZoom, cameraZoom)
-        ctx.translate(-canvasContainer.offsetWidth / 2 + cameraOffset.x, -canvasContainer.offsetHeight / 2 + cameraOffset.y)
-        ctx.clearRect(0, 0, canvasContainer.offsetWidth, canvasContainer.offsetHeight)
-
-        Renderer.thingsToDraw.forEach((element) => {
-          element.draw(ctx)
-        })
-        console.log('draw')
-
-        setTimeout(function () {
-          requestAnimationFrame(() => render())
-          //  animating/drawing code goes here
-        }, 1000 / Renderer.fps)
-      }
-
-      // Gets the relevant location from a mouse or single touch event
-      function getEventLocation(e: any) {
-        if (e.touches && e.touches.length == 1) {
-          return { x: e.touches[0].clientX, y: e.touches[0].clientY }
-        } else if (e.clientX && e.clientY) {
-          return { x: e.clientX, y: e.clientY }
-        }
-      }
-
-      let isDragging = false
-      let dragStart = { x: 0, y: 0 }
-
-      function onPointerDown(e: Event) {
-        isDragging = true
-        dragStart.x = getEventLocation(e).x / cameraZoom - cameraOffset.x
-        dragStart.y = getEventLocation(e).y / cameraZoom - cameraOffset.y
-      }
-
-      function onPointerUp(e: Event) {
-        isDragging = false
-        initialPinchDistance = null
-        lastZoom = cameraZoom
-      }
-
-      function onPointerMove(e: Event) {
-        if (isDragging) {
-          cameraOffset.x = getEventLocation(e).x / cameraZoom - dragStart.x
-          cameraOffset.y = getEventLocation(e).y / cameraZoom - dragStart.y
-        }
-      }
-
-      function handleTouch(e: TouchEvent, singleTouchHandler: (e: TouchEvent) => void) {
-        if (e.touches.length == 1) {
-          singleTouchHandler(e)
-        } else if (e.type == 'touchmove' && e.touches.length == 2) {
-          isDragging = false
-          handlePinch(e)
-        }
-      }
-
-      let initialPinchDistance: any = null
-      let lastZoom = cameraZoom
-
-      function handlePinch(e: TouchEvent) {
-        e.preventDefault()
-
-        let touch1 = { x: e.touches[0].clientX, y: e.touches[0].clientY }
-        let touch2 = { x: e.touches[1].clientX, y: e.touches[1].clientY }
-
-        // This is distance squared, but no need for an expensive sqrt as it's only used in ratio
-        let currentDistance = (touch1.x - touch2.x) ** 2 + (touch1.y - touch2.y) ** 2
-
-        if (initialPinchDistance == null) {
-          initialPinchDistance = currentDistance
-        } else {
-          adjustZoom(null, currentDistance / initialPinchDistance)
-        }
-      }
-
-      function adjustZoom(zoomAmount: number, zoomFactor: number) {
-        if (!isDragging) {
-          if (zoomAmount) {
-            cameraZoom += zoomAmount
-          } else if (zoomFactor) {
-            console.log(zoomFactor)
-            cameraZoom = zoomFactor * lastZoom
-          }
-          cameraZoom = Math.min(cameraZoom, MAX_ZOOM)
-          cameraZoom = Math.max(cameraZoom, MIN_ZOOM)
-        }
-      }
-
-      canvas.addEventListener('mousedown', onPointerDown)
-      canvas.addEventListener('touchstart', (e) => handleTouch(e, onPointerDown))
-      canvas.addEventListener('mouseup', onPointerUp)
-      canvas.addEventListener('touchend', (e) => handleTouch(e, onPointerUp))
-      canvas.addEventListener('mousemove', onPointerMove)
-      canvas.addEventListener('touchmove', (e) => handleTouch(e, onPointerMove))
-      canvas.addEventListener('wheel', (e) => adjustZoom(e.deltaY * SCROLL_SENSITIVITY, null))
-
-      // Ready, set, go
-
-      render()
-    } else {
-      console.log('Already rendering!')
+  if (e instanceof TouchEvent) {
+    if (e.touches && e.touches.length == 1) {
+      return { x: e.touches[0].clientX, y: e.touches[0].clientY };
     }
   }
+  if (e instanceof MouseEvent) {
+    if (e.clientX && e.clientY) {
+      return { x: e.clientX, y: e.clientY };
+    }
+  }
+
+  throw new Error("Wrong event! in getEventLocation(e: TouchEvent | MouseEvent) method")
+}
+export class Renderer {
+  static _instance: Renderer;
+  private fps = 40;
+  private thingsToDraw: DrawElement[] = [];
+
+  private canvas: HTMLCanvasElement;
+  private canvasContainer: HTMLElement;
+  private ctx: CanvasRenderingContext2D;
+
+  private cameraOffset: Position;
+  private cameraZoom = 1;
+  private MAX_ZOOM = 5;
+  private MIN_ZOOM = 0.07;
+  private SCROLL_SENSITIVITY = 0.0003;
+
+  private isDragging = false;
+  private dragStart: Position = { x: 0, y: 0 };
+
+  private initialPinchDistance: number | null = null;
+  private lastZoom: number;
+
+  constructor(thingsToDraw: DrawElement[]) {
+    // Make Renderer singleton 
+    if (Renderer._instance) {
+      throw new Error("Singleton classes can't be instantiated more than once.")
+    }
+    Renderer._instance = this;
+
+    // Populating things we are going to draw 
+    this.thingsToDraw = thingsToDraw
+
+    // This element will be used as a container for canvas
+    this.canvasContainer =
+      document.getElementById("canvas-container") ??
+      (() => {
+        throw new Error("No canvas container in DOM!");
+      })();
+
+    // Creating canvas
+    this.canvas = <HTMLCanvasElement>document.createElement("canvas");
+
+    // Setting canvas size depending on parent container size
+    this.canvas.width = this.canvasContainer.offsetWidth;
+    this.canvas.height = this.canvasContainer.offsetHeight;
+
+    // Inserting canvas into container
+    this.canvasContainer.appendChild(this.canvas);
+
+    this.ctx =
+      this.canvas.getContext("2d") ??
+      (() => {
+        throw new Error("Unable to get canvas context!");
+      })();
+
+    this.cameraOffset = {
+      x: this.canvasContainer.offsetWidth / 2,
+      y: this.canvasContainer.offsetHeight / 2,
+    };
+
+    this.lastZoom = this.cameraZoom;
+
+
+
+
+
+    const onPointerDown = (e: TouchEvent | MouseEvent) => {
+
+      this.isDragging = true;
+      this.dragStart.x = getEventLocation(e).x / this.cameraZoom - this.cameraOffset.x;
+      this.dragStart.y = getEventLocation(e).y / this.cameraZoom - this.cameraOffset.y;
+    }
+
+    const onPointerMove = (e: TouchEvent | MouseEvent) => {
+      if (this.isDragging) {
+        this.cameraOffset.x = getEventLocation(e).x / this.cameraZoom - this.dragStart.x;
+        this.cameraOffset.y = getEventLocation(e).y / this.cameraZoom - this.dragStart.y;
+      }
+    }
+
+    const onPointerUp = () => {
+      this.isDragging = false;
+      this.initialPinchDistance = null;
+      this.lastZoom = this.cameraZoom;
+    }
+
+
+
+    const handleTouch = (e: TouchEvent, singleTouchHandler: (e: TouchEvent) => void) => {
+      if (e.touches.length == 1) {
+        singleTouchHandler(e);
+      } else if (e.type == "touchmove" && e.touches.length == 2) {
+        this.isDragging = false;
+        handlePinch(e);
+      }
+    }
+
+    const handlePinch = (e: TouchEvent) => {
+      e.preventDefault();
+
+      const touch1 = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+      const touch2 = { x: e.touches[1].clientX, y: e.touches[1].clientY };
+
+      // This is distance squared, but no need for an expensive sqrt as it's only used in ratio
+      const currentDistance = (touch1.x - touch2.x) ** 2 + (touch1.y - touch2.y) ** 2;
+
+      if (this.initialPinchDistance == null) {
+        this.initialPinchDistance = currentDistance;
+      } else {
+        adjustZoom(null, currentDistance / this.initialPinchDistance);
+      }
+    }
+
+    const adjustZoom = (zoomAmount: number | null, zoomFactor: number | null) => {
+      if (!this.isDragging) {
+        if (zoomAmount) {
+          this.cameraZoom += zoomAmount;
+        } else if (zoomFactor) {
+          console.log(zoomFactor);
+          this.cameraZoom = zoomFactor * this.lastZoom;
+        }
+        this.cameraZoom = Math.min(this.cameraZoom, this.MAX_ZOOM);
+        this.cameraZoom = Math.max(this.cameraZoom, this.MIN_ZOOM);
+      }
+    }
+
+    this.canvas.addEventListener("mousedown", onPointerDown);
+    this.canvas.addEventListener("touchstart", (e) => handleTouch(e, onPointerDown));
+    this.canvas.addEventListener("mouseup", onPointerUp);
+    this.canvas.addEventListener("touchend", (e) => handleTouch(e, onPointerUp));
+    this.canvas.addEventListener("mousemove", onPointerMove);
+    this.canvas.addEventListener("touchmove", (e) => handleTouch(e, onPointerMove));
+    this.canvas.addEventListener("wheel", (e) => adjustZoom(e.deltaY * this.SCROLL_SENSITIVITY, null));
+
+    // Ready, set, go
+    this.render();
+  }
+
+
+  // Recursive function which is responsible for rendering all DrawElements to canvas
+  render() {
+    this.canvas.width = this.canvasContainer.offsetWidth;
+    this.canvas.height = this.canvasContainer.offsetHeight;
+    // Translate to the canvas centre before zooming - so you'll always zoom on what you're looking directly at
+    // ctx.translate(cursorPosition.x / 2, cursorPosition.y / 2)
+    this.ctx.scale(this.cameraZoom, this.cameraZoom);
+    this.ctx.translate(-this.canvasContainer.offsetWidth / 2 + this.cameraOffset.x, -this.canvasContainer.offsetHeight / 2 + this.cameraOffset.y);
+    this.ctx.clearRect(0, 0, this.canvasContainer.offsetWidth, this.canvasContainer.offsetHeight);
+
+    this.thingsToDraw.forEach((element) => {
+      element.draw(this.ctx);
+    });
+    console.log("draw");
+
+    // need to bind callback function to this instance
+    setTimeout((function () {
+      requestAnimationFrame(() => this.render());
+    }).bind(this), 1000 / this.fps);
+  }
+
+  // Gets the relevant location from a mouse or single touch event
+
+
 }

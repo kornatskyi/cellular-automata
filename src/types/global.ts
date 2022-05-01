@@ -1,4 +1,4 @@
-import { Cell } from '../classes/Cell'
+import { Cell } from "../classes/Cell";
 
 export type Position = {
   x: number

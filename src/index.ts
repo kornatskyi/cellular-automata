@@ -1,13 +1,11 @@
 // import '../src/pages/rules/rules'
-import { Cell } from './classes/Cell'
 import { ElementaryCellularAutomata } from './classes/ElementaryCellularAutomata'
 import { Renderer } from './classes/Renderer'
-import Rules from './classes/Rules'
 import './styles/index.scss'
 import './styles/tailwind-global.css'
 
-Renderer.thingsToDraw = [new ElementaryCellularAutomata()]
-Renderer.start()
+
+new Renderer([new ElementaryCellularAutomata()]);
 
 // Setting page visibility back to visible
 document.body.style.opacity = '1'
