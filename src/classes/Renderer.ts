@@ -19,7 +19,7 @@ const getEventLocation = (e: TouchEvent | MouseEvent): Position => {
 }
 export class Renderer {
   static _instance: Renderer;
-  private fps = 40;
+  private fps = 1;
   private thingsToDraw: DrawElement[] = [];
 
   private canvas: HTMLCanvasElement;

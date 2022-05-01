@@ -1,6 +1,5 @@
-const path = require('path');
+/* eslint-disable @typescript-eslint/no-var-requires */
 const HtmlWebpackPlugin = require('html-webpack-plugin'); //installed via npm
-const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 module.exports = {
     entry: {
@@ -41,7 +40,6 @@ module.exports = {
 
                 ],
             },
-
             {
                 test: /\.html$/,
                 use: [
@@ -52,7 +50,11 @@ module.exports = {
                         }
                     }
                 ]
-            }
+            },
+            {
+                test: /\.(png|svg|jpg|jpeg|gif)$/i,
+                type: 'asset/resource',
+            },
 
         ],
     },
@@ -61,7 +63,7 @@ module.exports = {
     },
     plugins: [
         // new CleanWebpackPlugin(),
-        new HtmlWebpackPlugin({ template: './public/index.html', minify: false, chunks: ['index'] }),
+        new HtmlWebpackPlugin({ template: './src/index.html', minify: false, chunks: ['index'] }),
     ],
 };
 
