@@ -36,7 +36,7 @@ export class Renderer {
 
   private cameraOffset: Position;
   private cameraZoom = 1;
-  private MAX_ZOOM = 5;
+  private MAX_ZOOM = 1;
   private MIN_ZOOM = 0.07;
   private SCROLL_SENSITIVITY = 0.0003;
 
@@ -47,6 +47,8 @@ export class Renderer {
   private lastZoom: number;
 
   private renderingState = RenderingState.STOP
+
+  private cursorPosition: Position = { x: 0, y: 0 }
 
   constructor() {
     // Make Renderer singleton 
@@ -146,6 +148,7 @@ export class Renderer {
         }
         this.cameraZoom = Math.min(this.cameraZoom, this.MAX_ZOOM);
         this.cameraZoom = Math.max(this.cameraZoom, this.MIN_ZOOM);
+
       }
     }
 
@@ -192,8 +195,7 @@ export class Renderer {
 
       this.canvas.width = this.canvasContainer.offsetWidth;
       this.canvas.height = this.canvasContainer.offsetHeight;
-      // Translate to the canvas centre before zooming - so you'll always zoom on what you're looking directly at
-      // ctx.translate(cursorPosition.x / 2, cursorPosition.y / 2)
+
       this.ctx.scale(this.cameraZoom, this.cameraZoom);
       this.ctx.translate(-this.canvasContainer.offsetWidth / 2 + this.cameraOffset.x, -this.canvasContainer.offsetHeight / 2 + this.cameraOffset.y);
       this.ctx.clearRect(0, 0, this.canvasContainer.offsetWidth, this.canvasContainer.offsetHeight);

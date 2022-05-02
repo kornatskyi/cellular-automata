@@ -1,0 +1,1 @@
+# [Read more about Cellular Automatons](https://mathworld.wolfram.com/ElementaryCellularAutomaton.html)

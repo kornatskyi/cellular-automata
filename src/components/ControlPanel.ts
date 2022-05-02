@@ -17,7 +17,7 @@ const allCombinationOfThreeCells = [
 
 export class ControlPanel extends HTMLElement {
     renderer: Renderer
-    elementaryCellularAutomata: ElementaryCellularAutomata
+    elementaryCellularAutomata: ElementaryCellularAutomata | null
     rule = new Rule(false, false, false, false, false, false, false, false,);
     started = false
     constructor() {
@@ -125,12 +125,12 @@ export class ControlPanel extends HTMLElement {
             const resultCell = document.createElement('div');
 
             resultCell.className = 'cell resultCell'
-            resultCell.style.backgroundColor = 'black'
+            resultCell.style.backgroundColor = this.rule.getRuleInFormOfBooleans()[i] ? 'black' : 'white' 
 
             // Change rule
             resultCell.onclick = () => {
                 this.rule.setRuleByIndex(i, !this.rule.getRuleInFormOfBooleans()[i]);
-                resultCell.style.backgroundColor = this.rule.getRuleInFormOfBooleans()[i] ? 'white' : 'black';
+                resultCell.style.backgroundColor = this.rule.getRuleInFormOfBooleans()[i] ? 'black' : 'white' 
             }
 
             cellsBlock.appendChild(threeCells);
@@ -155,7 +155,13 @@ export class ControlPanel extends HTMLElement {
 
         reset.onclick = () => {
             console.log(" ~ ", "Reset")
-            this.elementaryCellularAutomata.resetAutomaton();
+
+            // Resetting Automaton 
+            this.elementaryCellularAutomata?.resetAutomaton();
+
+            // Clear renderer list of objects to draw
+            this.renderer.clearDrawingList();
+
             this.started = false
             start.disabled = false;
             stop.disabled = true
@@ -164,14 +170,20 @@ export class ControlPanel extends HTMLElement {
         stop.onclick = () => {
             console.log(" ~ ", "Stop")
 
-            this.elementaryCellularAutomata.stopAutomaton();
+            // Stops generation of new cells on the Automaton side
+            this.elementaryCellularAutomata?.stopAutomaton();
             this.started = false
             start.disabled = false
+            stop.disabled = true
 
         }
 
         start.onclick = () => {
-            this.elementaryCellularAutomata = new ElementaryCellularAutomata();
+
+            if (!this.elementaryCellularAutomata) {
+                this.elementaryCellularAutomata = new ElementaryCellularAutomata();
+            }
+
             console.log(this.rule);
 
             this.elementaryCellularAutomata.setRule(this.rule)

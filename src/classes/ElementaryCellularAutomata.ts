@@ -7,12 +7,11 @@ const CELL_WIDTH = 20;
 
 export class ElementaryCellularAutomata implements DrawElement {
 	cells: Cell[][];
-	rule: Rule = new Rule(false, true, true, true, true, false, false, false);
-	initialPosition: Position = { x: 800, y: 0 };
+	rule: Rule = new Rule(true, true, true, true, true, true, true, true);
+	initialPosition: Position = { x: 800, y: 20 };
 	generation = 0;
-
 	interval: NodeJS.Timer
-	constructor();
+
 	constructor(rule?: Rule) {
 		this.initAutomaton(rule);
 	}
@@ -52,6 +51,8 @@ export class ElementaryCellularAutomata implements DrawElement {
 
 	resetAutomaton(rule = this.rule) {
 		this.initAutomaton(rule)
+		this.generation = 0;
+		clearInterval(this.interval)
 	}
 
 

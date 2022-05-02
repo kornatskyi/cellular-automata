@@ -7,8 +7,6 @@ import './styles/tailwind-global.css'
 
 
 
-// new Renderer([new ElementaryCellularAutomata()]);
-
 // Setting page visibility back to visible
 document.body.style.opacity = '1'
 
