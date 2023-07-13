@@ -51,6 +51,19 @@ export class Rule {
         break
     }
   }
+
+  getRuleNumber(): number {
+    const dNums = [128, 64, 32, 16, 8, 4, 2, 1]
+    const r = dNums
+      .map((n, i) => {
+        return this.getRuleInFormOfBooleans()[i] ? n : 0
+      })
+      .reduce((e, acum) => e + acum, 0)
+    console.log(r)
+
+    return r
+  }
+
   result(colors: [boolean, boolean, boolean]): boolean {
     if (colors[0] === false && colors[1] === false && colors[2] === false) return this.fff
     if (colors[0] === false && colors[1] === false && colors[2] === true) return this.fft

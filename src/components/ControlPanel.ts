@@ -15,14 +15,16 @@ const allCombinationOfThreeCells = [
   [true, true, true],
 ]
 
-export class ControlPanel extends HTMLElement {
+export class ControlPanel {
   renderer: Renderer
   elementaryCellularAutomata: ElementaryCellularAutomata | null
   rule = new Rule(false, false, false, false, false, false, false, false)
   started = false
+  wrapper: HTMLElement
+  getWrapper(): HTMLElement {
+    return this.wrapper
+  }
   constructor() {
-    super()
-
     try {
       this.renderer = Renderer.getInstance()
     } catch (e) {
@@ -30,64 +32,12 @@ export class ControlPanel extends HTMLElement {
       this.renderer = new Renderer()
     }
 
-    this.attachShadow({ mode: 'open' })
-
-    const style = html`
-      <style>
-        .wrapper {
-          width: 100%;
-          border: 1px solid black;
-          background-color: rgba(255, 255, 255, 50%);
-        }
-
-        .cell {
-          width: 10px;
-          height: 10px;
-          border: 1px solid black;
-        }
-        .resultCell {
-          margin-top: 5px;
-          cursor: pointer;
-        }
-        .threeCells {
-          display: flex;
-        }
-        .cellsBlock {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-        }
-        .ruleContainer {
-          display: flex;
-          justify-content: space-around;
-          width: 400px;
-        }
-        button {
-          margin: 10px 5px;
-        }
-        .buttons {
-          display: flex;
-          justify-content: flex-end;
-        }
-        .logo {
-          width: 40px;
-          height: 40px;
-          margin: 10px;
-        }
-        .header {
-          display: flex;
-        }
-      </style>
-    `
-
     // Wrapper(container) element
-    const wrapper = document.createElement('div')
-    wrapper.className = 'wrapper'
-    // Inserting styles "dangerously"
-    wrapper.insertAdjacentHTML('beforeend', style)
+    this.wrapper = document.createElement('div')
+    this.wrapper.className = 'wrapper'
 
     // Header
-    const header = wrapper.appendChild(document.createElement('div'))
+    const header = this.wrapper.appendChild(document.createElement('div'))
     header.className = 'header'
     const logo = header.appendChild(document.createElement('img'))
     const title = header.appendChild(document.createElement('h3'))
@@ -132,7 +82,7 @@ export class ControlPanel extends HTMLElement {
       ruleContainer.appendChild(cellsBlock)
     })
     // Appending Rule Container
-    wrapper.appendChild(ruleContainer)
+    this.wrapper.appendChild(ruleContainer)
 
     const buttons = document.createElement('div')
     buttons.className = 'buttons'
@@ -188,8 +138,6 @@ export class ControlPanel extends HTMLElement {
       reset.disabled = false
     }
 
-    wrapper.appendChild(buttons)
-
-    this.shadowRoot?.append(wrapper)
+    this.wrapper.appendChild(buttons)
   }
 }
