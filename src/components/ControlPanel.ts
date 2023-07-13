@@ -3,24 +3,14 @@ import Icon from '../assets/logo.svg'
 import { Renderer } from '../classes/Renderer'
 import { Rule } from '../classes/Rule'
 import { ElementaryCellularAutomata } from '../classes/ElementaryCellularAutomata'
-
-const allCombinationOfThreeCells = [
-  [false, false, false],
-  [false, false, true],
-  [false, true, false],
-  [false, true, true],
-  [true, false, false],
-  [true, false, true],
-  [true, true, false],
-  [true, true, true],
-]
+import { COMBINATIONS_OF_THREE_CELLS } from '../constants'
 
 const createRulesContainer = (rule: Rule, onRuleClick: () => void) => {
   const ruleContainer = document.createElement('div')
   ruleContainer.className = 'ruleContainer'
 
   // filling out ruleContainer
-  allCombinationOfThreeCells.forEach((threeCellsValues, i) => {
+  COMBINATIONS_OF_THREE_CELLS.forEach((threeCellsValues, i) => {
     const cell = document.createElement('div')
     const threeCells = document.createElement('div')
     const cellsBlock = document.createElement('div')

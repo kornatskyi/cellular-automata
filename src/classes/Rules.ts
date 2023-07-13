@@ -1,3 +1,4 @@
+import { COMBINATIONS_OF_THREE_CELLS } from '../constants'
 import '../index'
 import { DrawElement } from '../interfaces/Rendering'
 
@@ -6,17 +7,6 @@ export default class Rules implements DrawElement {
   private CELL_WIDTH = 20
   private CELL_HEIGHT = 20
   private WIDTH = 700
-
-  private allCombinationOfThreeCells = [
-    [false, false, false],
-    [false, false, true],
-    [false, true, false],
-    [false, true, true],
-    [true, false, false],
-    [true, false, true],
-    [true, true, false],
-    [true, true, true],
-  ]
 
   private allBinaryCombinationOfLength(length: number) {
     const result = []
@@ -30,15 +20,15 @@ export default class Rules implements DrawElement {
 
   public draw(ctx: CanvasRenderingContext2D) {
     let x = 0
-    for (let i = 0; i < this.allCombinationOfThreeCells.length; i++) {
-      for (let j = 0; j < this.allCombinationOfThreeCells[i].length; j++) {
+    for (let i = 0; i < COMBINATIONS_OF_THREE_CELLS.length; i++) {
+      for (let j = 0; j < COMBINATIONS_OF_THREE_CELLS[i].length; j++) {
         // Separator between cells sets
         let separator = 0
         if (j === 2) {
-          separator = (this.WIDTH - this.allCombinationOfThreeCells.length * this.CELL_WIDTH * 3) / (this.allCombinationOfThreeCells.length - 1)
+          separator = (this.WIDTH - COMBINATIONS_OF_THREE_CELLS.length * this.CELL_WIDTH * 3) / (COMBINATIONS_OF_THREE_CELLS.length - 1)
         }
 
-        ctx.fillStyle = this.allCombinationOfThreeCells[i][j] ? 'black' : 'white'
+        ctx.fillStyle = COMBINATIONS_OF_THREE_CELLS[i][j] ? 'black' : 'white'
         // Spread the cells horizontally
         ctx.fillRect(x, 1, this.CELL_WIDTH - 1, this.CELL_HEIGHT - 1)
         x = x + this.CELL_WIDTH + separator
@@ -46,7 +36,7 @@ export default class Rules implements DrawElement {
       }
     }
 
-    const allPossibleRules = this.allBinaryCombinationOfLength(this.allCombinationOfThreeCells.length)
+    const allPossibleRules = this.allBinaryCombinationOfLength(COMBINATIONS_OF_THREE_CELLS.length)
 
     x = 0
 
