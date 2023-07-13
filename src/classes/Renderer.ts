@@ -50,7 +50,8 @@ export class Renderer {
   constructor() {
     // Make Renderer singleton
     if (Renderer._instance) {
-      throw new Error("Singleton classes can't be instantiated more than once.")
+      console.log(Renderer._instance);
+      return Renderer._instance
     }
     Renderer._instance = this
 
@@ -207,7 +208,7 @@ export class Renderer {
     if (Renderer._instance) {
       return Renderer._instance
     } else {
-      throw Error('No instance of Renderer was created!')
+      return new Renderer()
     }
   }
   // Gets the relevant location from a mouse or single touch event

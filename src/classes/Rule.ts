@@ -53,7 +53,7 @@ export class Rule {
   }
 
   getRuleNumber(): number {
-    const dNums = [128, 64, 32, 16, 8, 4, 2, 1]
+    const dNums = [1,2,4,8,16,32,64,128]
     const r = dNums
       .map((n, i) => {
         return this.getRuleInFormOfBooleans()[i] ? n : 0

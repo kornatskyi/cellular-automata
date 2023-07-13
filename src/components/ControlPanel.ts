@@ -15,6 +15,46 @@ const allCombinationOfThreeCells = [
   [true, true, true],
 ]
 
+const createRulesContainer = (rule: Rule, onRuleClick: () => void) => {
+  const ruleContainer = document.createElement('div')
+  ruleContainer.className = 'ruleContainer'
+
+  // filling out ruleContainer
+  allCombinationOfThreeCells.forEach((threeCellsValues, i) => {
+    const cell = document.createElement('div')
+    const threeCells = document.createElement('div')
+    const cellsBlock = document.createElement('div')
+
+    cell.className = 'cell'
+    threeCells.className = 'threeCells'
+    cellsBlock.className = 'cellsBlock'
+
+    cell.style.backgroundColor = threeCellsValues[0] ? 'black' : 'white'
+    threeCells.appendChild(cell.cloneNode())
+    cell.style.backgroundColor = threeCellsValues[1] ? 'black' : 'white'
+    threeCells.appendChild(cell.cloneNode())
+    cell.style.backgroundColor = threeCellsValues[2] ? 'black' : 'white'
+    threeCells.appendChild(cell.cloneNode())
+
+    const resultCell = document.createElement('div')
+
+    resultCell.className = 'cell resultCell'
+    resultCell.style.backgroundColor = rule.getRuleInFormOfBooleans()[i] ? 'black' : 'white'
+
+    // Change rule
+    resultCell.onclick = () => {
+      rule.setRuleByIndex(i, !rule.getRuleInFormOfBooleans()[i])
+      resultCell.style.backgroundColor = rule.getRuleInFormOfBooleans()[i] ? 'black' : 'white'
+      onRuleClick()
+    }
+
+    cellsBlock.appendChild(threeCells)
+    cellsBlock.appendChild(resultCell)
+    ruleContainer.appendChild(cellsBlock)
+  })
+  return ruleContainer
+}
+
 export class ControlPanel {
   renderer: Renderer
   elementaryCellularAutomata: ElementaryCellularAutomata | null
@@ -25,12 +65,7 @@ export class ControlPanel {
     return this.wrapper
   }
   constructor() {
-    try {
-      this.renderer = Renderer.getInstance()
-    } catch (e) {
-      console.log('Creating new Renderer instance in ControlPanel')
-      this.renderer = new Renderer()
-    }
+    this.renderer = Renderer.getInstance()
 
     // Wrapper(container) element
     this.wrapper = document.createElement('div')
@@ -45,44 +80,13 @@ export class ControlPanel {
     logo.src = Icon
     logo.className = 'logo'
 
-    const ruleContainer = document.createElement('div')
-    ruleContainer.className = 'ruleContainer'
+    const ruleNumber = header.appendChild(document.createElement('span'))
+    ruleNumber.textContent = "Rule: " + this.rule.getRuleNumber().toString()
+    ruleNumber.className = "rule-number"
 
-    // filling out ruleContainer
-
-    allCombinationOfThreeCells.forEach((threeCellsValues, i) => {
-      const cell = document.createElement('div')
-      const threeCells = document.createElement('div')
-      const cellsBlock = document.createElement('div')
-
-      cell.className = 'cell'
-      threeCells.className = 'threeCells'
-      cellsBlock.className = 'cellsBlock'
-
-      cell.style.backgroundColor = threeCellsValues[0] ? 'black' : 'white'
-      threeCells.appendChild(cell.cloneNode())
-      cell.style.backgroundColor = threeCellsValues[1] ? 'black' : 'white'
-      threeCells.appendChild(cell.cloneNode())
-      cell.style.backgroundColor = threeCellsValues[2] ? 'black' : 'white'
-      threeCells.appendChild(cell.cloneNode())
-
-      const resultCell = document.createElement('div')
-
-      resultCell.className = 'cell resultCell'
-      resultCell.style.backgroundColor = this.rule.getRuleInFormOfBooleans()[i] ? 'black' : 'white'
-
-      // Change rule
-      resultCell.onclick = () => {
-        this.rule.setRuleByIndex(i, !this.rule.getRuleInFormOfBooleans()[i])
-        resultCell.style.backgroundColor = this.rule.getRuleInFormOfBooleans()[i] ? 'black' : 'white'
-      }
-
-      cellsBlock.appendChild(threeCells)
-      cellsBlock.appendChild(resultCell)
-      ruleContainer.appendChild(cellsBlock)
-    })
     // Appending Rule Container
-    this.wrapper.appendChild(ruleContainer)
+    const rulesContainer = createRulesContainer(this.rule, () => (ruleNumber.textContent = "Rule: " + this.rule.getRuleNumber().toString()))
+    this.wrapper.appendChild(rulesContainer)
 
     const buttons = document.createElement('div')
     buttons.className = 'buttons'
