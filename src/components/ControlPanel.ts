@@ -1,9 +1,9 @@
-import { html } from '../utils/inlineHTML'
 import Icon from '../assets/logo.svg'
-import { Renderer } from '../classes/Renderer'
 import { Rule } from '../classes/Rule'
 import { ElementaryCellularAutomata } from '../classes/ElementaryCellularAutomata'
 import { COMBINATIONS_OF_THREE_CELLS } from '../constants'
+import { ResizableRenderer } from '../classes/ResizableRenderer'
+import { RenderingState } from '../classes/Renderer'
 
 const createRulesContainer = (rule: Rule, onRuleClick: () => void) => {
   const ruleContainer = document.createElement('div')
@@ -46,7 +46,7 @@ const createRulesContainer = (rule: Rule, onRuleClick: () => void) => {
 }
 
 export class ControlPanel {
-  renderer: Renderer
+  renderer: ResizableRenderer
   elementaryCellularAutomata: ElementaryCellularAutomata | null
   rule = new Rule(false, false, false, false, false, false, false, false)
   started = false
@@ -55,7 +55,7 @@ export class ControlPanel {
     return this.wrapper
   }
   constructor() {
-    this.renderer = Renderer.getInstance()
+    this.renderer = new ResizableRenderer()
 
     // Wrapper(container) element
     this.wrapper = document.createElement('div')
@@ -71,11 +71,11 @@ export class ControlPanel {
     logo.className = 'logo'
 
     const ruleNumber = header.appendChild(document.createElement('span'))
-    ruleNumber.textContent = "Rule: " + this.rule.getRuleNumber().toString()
-    ruleNumber.className = "rule-number"
+    ruleNumber.textContent = 'Rule: ' + this.rule.getRuleNumber().toString()
+    ruleNumber.className = 'rule-number'
 
     // Appending Rule Container
-    const rulesContainer = createRulesContainer(this.rule, () => (ruleNumber.textContent = "Rule: " + this.rule.getRuleNumber().toString()))
+    const rulesContainer = createRulesContainer(this.rule, () => (ruleNumber.textContent = 'Rule: ' + this.rule.getRuleNumber().toString()))
     this.wrapper.appendChild(rulesContainer)
 
     const buttons = document.createElement('div')
@@ -84,9 +84,11 @@ export class ControlPanel {
     const reset = buttons.appendChild(document.createElement('button'))
     const stop = buttons.appendChild(document.createElement('button'))
     const start = buttons.appendChild(document.createElement('button'))
+    const iterate = buttons.appendChild(document.createElement('button'))
     start.textContent = 'Start'
     stop.textContent = 'Stop'
     reset.textContent = 'Reset'
+    iterate.textContent = 'Iterate'
     reset.disabled = true
     stop.disabled = true
 
@@ -119,6 +121,10 @@ export class ControlPanel {
         this.elementaryCellularAutomata = new ElementaryCellularAutomata()
       }
 
+      if(this.renderer.getRenderingState() != RenderingState.START) {
+        this.renderer.start()
+      }
+
       console.log(this.rule)
 
       this.elementaryCellularAutomata.setRule(this.rule)
@@ -126,6 +132,20 @@ export class ControlPanel {
 
       this.elementaryCellularAutomata.startAutomaton()
       console.log('🚀 ~ ', 'Start')
+      this.started = true
+      start.disabled = this.started
+      stop.disabled = false
+      reset.disabled = false
+    }
+
+    iterate.onclick = () => {
+      if (!this.elementaryCellularAutomata) {
+        this.elementaryCellularAutomata = new ElementaryCellularAutomata()
+      }
+      this.elementaryCellularAutomata.setRule(this.rule)
+      this.elementaryCellularAutomata.generate()
+      this.renderer.addThingsToDraw([this.elementaryCellularAutomata])
+      console.log('🚀 ~ ', 'Iterate')
       this.started = true
       start.disabled = this.started
       stop.disabled = false

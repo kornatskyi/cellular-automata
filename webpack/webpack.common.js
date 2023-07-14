@@ -4,6 +4,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin'); //installed via npm
 module.exports = {
     entry: {
         index: './src/index.ts',
+        gameOfLife: './src/gameOfLife.ts'
     },
     devtool: 'inline-source-map',
     module: {
@@ -64,6 +65,12 @@ module.exports = {
     plugins: [
         // new CleanWebpackPlugin(),
         new HtmlWebpackPlugin({ template: './src/index.html', minify: false, chunks: ['index'] }),
+        new HtmlWebpackPlugin({ 
+            filename: 'gameOfLife.html',  // the output file in dist/ directory
+            template: './src/gameOfLife.html', 
+            minify: false, 
+            chunks: ['gameOfLife']  // chunks is an array of entry points that this html file should include
+        }),
     ],
 };
 
