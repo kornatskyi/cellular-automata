@@ -78,7 +78,6 @@ export class Renderer {
         element.draw(this.ctx)
       })
       // console.log('draw')
-
       // need to bind callback function to this instance
       setTimeout(
         function () {
