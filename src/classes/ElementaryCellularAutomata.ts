@@ -12,6 +12,9 @@ export class ElementaryCellularAutomata implements DrawElement {
   generation = 0
   interval: NodeJS.Timer
 
+  generationRate = 1000 / 60
+  maxNumberOfGeneration = 10
+
   constructor(rule?: Rule) {
     this.initAutomaton(rule)
   }
@@ -94,7 +97,8 @@ export class ElementaryCellularAutomata implements DrawElement {
           y: this.initialPosition.y + CELL_WIDTH * (this.generation + 1),
         }),
       ]
-
+      console.log(newGeneration);
+      
       this.cells.push(newGeneration)
       this.generation++
     }
