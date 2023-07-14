@@ -105,7 +105,7 @@ export class ElementaryCellularAutomata implements DrawElement {
   }
 
   calculateNextCell(left: Cell, middle: Cell, right: Cell): Cell {
-    const resultCell = new Cell(this.rule.result([left.color, middle.color, right.color]), {
+    const resultCell = new Cell(this.rule.result([left.alive, middle.alive, right.alive]), {
       x: middle.position.x,
       y: middle.position.y + Cell.height,
     })

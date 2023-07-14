@@ -4,21 +4,25 @@ import { Position } from '../types/global'
 export class Cell implements DrawElement {
   static width = 20
   static height = 20
-  color: boolean
+  alive: boolean
   position: Position
 
   constructor(color: boolean, position: Position) {
-    this.color = color
+    this.alive = color
     this.position = position
+  }
+
+  onClick(): void {
+    this.alive = !this.alive
   }
 
   draw(ctx: CanvasRenderingContext2D): void {
     // Fill color
-    ctx.fillStyle = this.color ? 'black' : 'white'
+    ctx.fillStyle = this.alive ? 'black' : 'white'
     ctx.fillRect(this.position.x, this.position.y, Cell.width, Cell.height)
 
     // Border color opposite to fill color
-    ctx.strokeStyle = this.color ? 'white' : 'black'
+    ctx.strokeStyle = this.alive ? 'white' : 'black'
     ctx.strokeRect(this.position.x, this.position.y, Cell.width, Cell.height)
   }
 
