@@ -4,7 +4,8 @@ const HtmlWebpackPlugin = require('html-webpack-plugin'); //installed via npm
 module.exports = {
     entry: {
         index: './src/index.ts',
-        gameOfLife: './src/gameOfLife.ts'
+        gameOfLife: './src/gameOfLife.ts',
+        game: './src/game.ts'
     },
     devtool: 'inline-source-map',
     module: {
@@ -70,6 +71,12 @@ module.exports = {
             template: './src/gameOfLife.html', 
             minify: false, 
             chunks: ['gameOfLife']  // chunks is an array of entry points that this html file should include
+        }),
+        new HtmlWebpackPlugin({ 
+            filename: 'game.html',  // the output file in dist/ directory
+            template: './src/game.html', 
+            minify: false, 
+            chunks: ['game']  // chunks is an array of entry points that this html file should include
         }),
     ],
 };
