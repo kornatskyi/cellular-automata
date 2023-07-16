@@ -53,7 +53,7 @@ export class Rule {
   }
 
   getRuleNumber(): number {
-    const dNums = [1,2,4,8,16,32,64,128]
+    const dNums = [1, 2, 4, 8, 16, 32, 64, 128]
     const r = dNums
       .map((n, i) => {
         return this.getRuleInFormOfBooleans()[i] ? n : 0
@@ -75,5 +75,19 @@ export class Rule {
     if (colors[0] === true && colors[1] === true && colors[2] === true) return this.ttt
 
     throw new Error("Result could't be calculated because of wrong parameter type!")
+  }
+
+  static getRuleByNumber(n: number): Rule {
+    const dNums = [128, 64, 32, 16, 8, 4, 2, 1]
+    let rule:boolean[] = []
+    for (const d of dNums) {
+      if (n - d >= 0) {
+        rule = [true, ...rule]
+        n = n - d
+      } else {
+        rule = [false, ...rule]
+      }
+    }
+    return new (Function.prototype.bind.apply(Rule, [null, ...rule]))()
   }
 }
