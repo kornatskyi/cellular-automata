@@ -13,7 +13,7 @@ export class Cell implements DrawElement {
   }
 
   onClick(): void {
-    this.alive = !this.alive
+    this.alive = true
   }
 
   draw(ctx: CanvasRenderingContext2D): void {

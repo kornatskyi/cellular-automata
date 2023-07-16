@@ -13,14 +13,72 @@ if (module.hot) {
 
 class GameOfLife {
   cells: Cell[] = []
+  renderer: Renderer
 
   private n = 50
-  constructor() {
+  constructor(renderer: Renderer) {
+    this.renderer = renderer
     for (let i = 0; i < this.n; i++) {
       for (let j = 0; j < this.n; j++) {
         this.cells[i * this.n + j] = new Cell(false, { x: j * Cell.width, y: i * Cell.height })
       }
     }
+
+    // *** Add control panel ***
+    const cP = document.getElementById('control-panel')
+    if (cP) {
+      const iButton = cP.appendChild(document.createElement('button'))
+      iButton.textContent = 'Update'
+      iButton.onclick = () => {
+        GOF.update()
+        this.renderer.thingsToDraw = GOF.cells
+      }
+    }
+
+    // *** Activate cells on the Canvas ***
+    let mouseDown = false
+    this.renderer.canvas.addEventListener('mousedown', () => {
+      mouseDown = true
+    })
+
+    this.renderer.canvas.addEventListener('mouseup', () => {
+      mouseDown = false
+    })
+
+    this.renderer.canvas.addEventListener('mousemove', (event: MouseEvent) => {
+      if (mouseDown) {
+        const rect = this.renderer.canvas.getBoundingClientRect()
+        const x = event.clientX - rect.left
+        const y = event.clientY - rect.top
+
+        // Iterate over all cells
+        for (const cell of GOF.cells) {
+          // Check if the click was inside this cell
+          if (x >= cell.position.x && x < cell.position.x + Cell.width && y >= cell.position.y && y < cell.position.y + Cell.height) {
+            // Click was inside this cell, toggle its state
+            cell.onClick()
+            break
+          }
+        }
+      }
+    })
+
+    // Use the existing click listener to initialize the selection
+    this.renderer.canvas.addEventListener('click', (event: MouseEvent) => {
+      const rect = this.renderer.canvas.getBoundingClientRect()
+      const x = event.clientX - rect.left
+      const y = event.clientY - rect.top
+
+      // Iterate over all cells
+      for (const cell of GOF.cells) {
+        // Check if the click was inside this cell
+        if (x >= cell.position.x && x < cell.position.x + Cell.width && y >= cell.position.y && y < cell.position.y + Cell.height) {
+          // Click was inside this cell, toggle its state
+          cell.onClick()
+          break
+        }
+      }
+    })
   }
 
   getNeighbors(cellNumber: number): number[] {
@@ -58,7 +116,15 @@ class GameOfLife {
 
   update() {
     const nextState: Cell[] = new Array(this.cells.length)
+    // Any live cell with fewer than two live neighbours dies, as if by underpopulation.
+    // Any live cell with two or three live neighbours lives on to the next generation.
+    // Any live cell with more than three live neighbours dies, as if by overpopulation.
+    // Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
+    // These rules, which compare the behaviour of the automaton to real life, can be condensed into the following:
 
+    // Any live cell with two or three live neighbours survives.
+    // Any dead cell with three live neighbours becomes a live cell.
+    // All other live cells die in the next generation. Similarly, all other dead cells stay dead.
     this.cells.forEach((cell, i) => {
       let aliveNeighbors = 0
       const neighbors = this.getNeighbors(i)
@@ -93,48 +159,22 @@ class GameOfLife {
     // Swap cells with nextState for the next tick
     this.cells = nextState
   }
+
+  start() {
+    this.renderer.addThingsToDraw(this.cells)
+    this.renderer.start()
+  }
 }
 
-// Any live cell with fewer than two live neighbours dies, as if by underpopulation.
-// Any live cell with two or three live neighbours lives on to the next generation.
-// Any live cell with more than three live neighbours dies, as if by overpopulation.
-// Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
-// These rules, which compare the behaviour of the automaton to real life, can be condensed into the following:
+const GOF = new GameOfLife(new Renderer())
 
-// Any live cell with two or three live neighbours survives.
-// Any dead cell with three live neighbours becomes a live cell.
-// All other live cells die in the next generation. Similarly, all other dead cells stay dead.
-const r = new Renderer()
-const GOF = new GameOfLife()
-r.canvas.addEventListener('click', (event: MouseEvent) => {
-  const rect = r.canvas.getBoundingClientRect()
-  const x = event.clientX - rect.left
-  const y = event.clientY - rect.top
+GOF.start()
 
-  // Iterate over all cells
-  for (const cell of GOF.cells) {
-    // Check if the click was inside this cell
-    if (x >= cell.position.x && x < cell.position.x + Cell.width && y >= cell.position.y && y < cell.position.y + Cell.height) {
-      // Click was inside this cell, toggle its state
-      cell.onClick()
-      break
-    }
-  }
-})
-GOF.cells[555].alive = true
-GOF.cells[556].alive = true
-GOF.cells[554].alive = true
-GOF.cells[553].alive = true
-GOF.cells[543].alive = true
-const cP = document.getElementById('control-panel')
-if (cP) {
-  const iButton = cP.appendChild(document.createElement('button'))
-  iButton.textContent = 'Update'
-  iButton.onclick = () => {
+const u = () => {
+  setTimeout(() => {
     GOF.update()
-    r.thingsToDraw = GOF.cells
-  }
+    GOF.renderer.thingsToDraw = GOF.cells
+    u()
+  }, 10)
 }
-
-r.addThingsToDraw(GOF.cells)
-r.start()
+// u()

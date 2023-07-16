@@ -130,8 +130,8 @@ export class ResizableRenderer extends Renderer {
 
       // Reset transformation matrix before drawing static UI element
       this.ctx.setTransform(1, 0, 0, 1, 0, 0)
-      this.ctx.fillText('Zoom:', 10, 20) // Drawing the text in top-left corner
-      this.ctx.fillText(`Pointer coordinates x: ${this.cursorPosition.x}, y: ${this.cursorPosition.y}`, 10, 40) // Drawing the text in top-left corner
+      this.ctx.fillText(`Zoom:  ${(1 / this.cameraZoom)}`, this.canvasContainer.offsetWidth - 200, 20) // Drawing the text in top-left corner
+      this.ctx.fillText(`Pointer coordinates x: ${this.cursorPosition.x}, y: ${this.cursorPosition.y}`, this.canvasContainer.offsetWidth - 200, 40) // Drawing the text in top-left corner
       this.ctx.restore() // Restore context's state to what it was before drawing static UI element
 
       // need to bind callback function to this instance
