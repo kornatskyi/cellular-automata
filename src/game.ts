@@ -103,7 +103,7 @@ class Player {
 }
 
 class GameOfLife {
-  cells: Cell[] = []
+  cellMap = new CellMap()
   renderer: Renderer
 
   player1: Player
@@ -116,7 +116,7 @@ class GameOfLife {
     this.player2 = player2
     for (let i = 0; i < this.n; i++) {
       for (let j = 0; j < this.n; j++) {
-        this.cells[i * this.n + j] = new Cell(false, { x: j * Cell.width, y: i * Cell.height })
+        this.cellMap.add(new Cell(false, { x: j * Cell.width, y: i * Cell.height }))
       }
     }
 
@@ -131,8 +131,9 @@ class GameOfLife {
     const cP = document.getElementById('control-panel')
     if (cP) {
       const iButton = cP.appendChild(document.createElement('button'))
-      iButton.textContent = 'Update'
+      iButton.textContent = 'Next turn'
       iButton.onclick = () => {
+        GOF.nextTurn()
         GOF.update()
       }
     }
@@ -154,11 +155,13 @@ class GameOfLife {
         const y = event.clientY - rect.top
 
         // Iterate over all cells
-        for (const cell of [...GOF.cells, ...player1.cellMap.cells, ...player2.cellMap.cells]) {
+        for (const cell of [...GOF.cellMap.cells, ...player1.cellMap.cells, ...player2.cellMap.cells]) {
           // Check if the click was inside this cell
           if (x >= cell.position.x && x < cell.position.x + Cell.width && y >= cell.position.y && y < cell.position.y + Cell.height) {
             // Click was inside this cell, toggle its state
-            cell.onClick()
+            this.cellMap.add(new Cell(true, { x: cell.position.x, y: cell.position.y }))
+            this.update()
+            // cell.onClick()
             break
           }
         }
@@ -172,29 +175,30 @@ class GameOfLife {
       const y = event.clientY - rect.top
 
       // Iterate over all cells
-      for (const cell of [...GOF.cells, ...player1.cellMap.cells, ...player2.cellMap.cells]) {
+      for (const cell of [...GOF.cellMap.cells, ...player1.cellMap.cells, ...player2.cellMap.cells]) {
         // Check if the click was inside this cell
         if (x >= cell.position.x && x < cell.position.x + Cell.width && y >= cell.position.y && y < cell.position.y + Cell.height) {
           // Click was inside this cell, toggle its state
-          cell.onClick()
+          this.cellMap.add(new Cell(true, { x: cell.position.x, y: cell.position.y }))
+          this.update()
           break
         }
       }
     })
   }
 
-  update() {
+  nextTurn() {
     this.player1.cellMap.addMany(this.player1.calculateNextState())
-    console.log(this.player1.cellMap)
-
-    // console.log(this.renderer.thingsToDraw);
-
-    this.renderer.thingsToDraw = [...this.cells, ...this.player1.cellMap.cells, ...this.player2.cellMap.cells]
-    console.log(this.renderer.thingsToDraw)
+    this.player2.cellMap.addMany(this.player2.calculateNextState())
+  }
+  update() {
+    this.cellMap.addMany(this.player1.cellMap.cells)
+    this.cellMap.addMany(this.player2.cellMap.cells)
+    this.renderer.thingsToDraw = [...this.cellMap.cells]
   }
 
   start() {
-    this.renderer.addThingsToDraw([...this.cells, ...this.player1.cellMap.cells, ...this.player2.cellMap.cells])
+    this.renderer.addThingsToDraw([...this.cellMap.cells, ...this.player1.cellMap.cells, ...this.player2.cellMap.cells])
     this.renderer.start()
   }
 }
