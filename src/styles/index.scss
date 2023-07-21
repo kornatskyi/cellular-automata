@@ -68,3 +68,12 @@ button {
 .rule-number {
   margin: auto;
 }
+
+.navigation {
+  position: absolute;
+  right: 50px;
+  top: 50px;
+  a {
+    margin: 5px;
+  }
+} 
