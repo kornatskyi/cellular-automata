@@ -11,29 +11,90 @@ if (module.hot) {
   module.hot.accept()
 }
 
+function twoFramesArray(currentFrame: Cell[], nextFrame: Cell[]) {
+  // Helper function to convert an array of Cells to a CSV string
+  const arrayToCSVString = (array: Cell[]): string => {
+    return array.map((cell) => (cell.alive ? '1' : '0')).join(',')
+  }
+
+  // Convert arrays to CSV format
+  const csvContentArray1 = arrayToCSVString(currentFrame)
+  const csvContentArray2 = arrayToCSVString(nextFrame)
+
+  // Combine both arrays in one CSV, separating them with a newline
+  return `${csvContentArray1},${csvContentArray2}`
+}
+
+function genCSV(csvContent: string): void {
+  // Determine the number of columns for each state (current and next)
+  const numOfColumns = csvContent.split(',').length // Assuming the first line represents the "current" state
+
+  // Function to generate zero-padded numbers
+  function zeroPad(num: number, places: number) {
+    return String(num).padStart(places, '0')
+  }
+
+  // Generate column headers
+  const columns = []
+  for (let i = 0; i < numOfColumns; i++) {
+    // Generate zero-padded column number
+    const columnNumber = zeroPad(i, 2) // Change 2 to the maximum number of digits you expect
+    columns.push(`current_${columnNumber}`)
+  }
+
+  for (let i = 0; i < numOfColumns; i++) {
+    // Generate zero-padded column number
+    const columnNumber = zeroPad(i, 2) // Change 2 to the maximum number of digits you expect
+    columns.push(`next_${columnNumber}`)
+  }
+
+  // Now, 'columns' contains your headers like ["current_00", "current_01", ..., "next_00", "next_01", ...]
+  // You can prepend this to your CSV content
+  const columnHeaders = columns.join(',') + '\n' // Convert the array of headers into a single CSV header row
+  const csvWithHeaders = columnHeaders + csvContent // Prepend the headers to the original CSV content
+
+  // The rest of your code to generate the Blob and trigger the download remains the same
+
+  const blob = new Blob([csvWithHeaders], { type: 'text/csv;charset=utf-8;' })
+
+  // Create a link element, hide it, direct it towards the blob, and then 'click' it programmatically
+  const link = document.createElement('a')
+  const url = URL.createObjectURL(blob)
+  link.setAttribute('href', url)
+  link.setAttribute('download', 'game_of_life_data.csv')
+  link.style.visibility = 'hidden'
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+}
+
+function conwaysGameOfLifeControlPanel(GOL: GameOfLife) {
+  // *** Add control panel ***
+  const cP = document.getElementById('control-panel')
+  if (cP) {
+    const iButton = cP.appendChild(document.createElement('button'))
+    iButton.textContent = 'Update'
+    iButton.onclick = () => {
+      GOL.update()
+      GOL.renderer.thingsToDraw = GOL.cells
+    }
+  }
+}
+
 class GameOfLife {
   cells: Cell[] = []
   renderer: Renderer
 
-  private n = 50
+  private numberOfCells = 10
   constructor(renderer: Renderer) {
     this.renderer = renderer
-    for (let i = 0; i < this.n; i++) {
-      for (let j = 0; j < this.n; j++) {
-        this.cells[i * this.n + j] = new Cell(false, { x: j * Cell.width, y: i * Cell.height })
+    for (let i = 0; i < this.numberOfCells; i++) {
+      for (let j = 0; j < this.numberOfCells; j++) {
+        this.cells[i * this.numberOfCells + j] = new Cell(false, { x: j * Cell.width, y: i * Cell.height })
       }
     }
 
-    // *** Add control panel ***
-    const cP = document.getElementById('control-panel')
-    if (cP) {
-      const iButton = cP.appendChild(document.createElement('button'))
-      iButton.textContent = 'Update'
-      iButton.onclick = () => {
-        GOF.update()
-        this.renderer.thingsToDraw = GOF.cells
-      }
-    }
+    conwaysGameOfLifeControlPanel(this)
 
     // *** Activate cells on the Canvas ***
     let mouseDown = false
@@ -52,7 +113,7 @@ class GameOfLife {
         const y = event.clientY - rect.top
 
         // Iterate over all cells
-        for (const cell of GOF.cells) {
+        for (const cell of GOL.cells) {
           // Check if the click was inside this cell
           if (x >= cell.position.x && x < cell.position.x + Cell.width && y >= cell.position.y && y < cell.position.y + Cell.height) {
             // Click was inside this cell, toggle its state
@@ -70,7 +131,7 @@ class GameOfLife {
       const y = event.clientY - rect.top
 
       // Iterate over all cells
-      for (const cell of GOF.cells) {
+      for (const cell of GOL.cells) {
         // Check if the click was inside this cell
         if (x >= cell.position.x && x < cell.position.x + Cell.width && y >= cell.position.y && y < cell.position.y + Cell.height) {
           // Click was inside this cell, toggle its state
@@ -85,8 +146,8 @@ class GameOfLife {
     const neighbors: number[] = []
 
     const cellPosition = {
-      x: cellNumber % this.n,
-      y: Math.floor(cellNumber / this.n),
+      x: cellNumber % this.numberOfCells,
+      y: Math.floor(cellNumber / this.numberOfCells),
     }
 
     // Offset to find the neighbors
@@ -106,8 +167,8 @@ class GameOfLife {
       const newX = cellPosition.x + offset[1]
 
       // Check if the neighbor is within the grid
-      if (newX >= 0 && newX < this.n && newY >= 0 && newY < this.n) {
-        neighbors.push(newY * this.n + newX)
+      if (newX >= 0 && newX < this.numberOfCells && newY >= 0 && newY < this.numberOfCells) {
+        neighbors.push(newY * this.numberOfCells + newX)
       }
     }
 
@@ -156,6 +217,7 @@ class GameOfLife {
       }
     })
 
+    genCSV(twoFramesArray(this.cells, nextState))
     // Swap cells with nextState for the next tick
     this.cells = nextState
   }
@@ -166,15 +228,15 @@ class GameOfLife {
   }
 }
 
-const GOF = new GameOfLife(new Renderer())
+const GOL = new GameOfLife(new Renderer())
 
-GOF.start()
+GOL.start()
 
 const u = () => {
   setTimeout(() => {
-    GOF.update()
-    GOF.renderer.thingsToDraw = GOF.cells
+    GOL.update()
+    GOL.renderer.thingsToDraw = GOL.cells
     u()
-  }, 10)
+  }, 1000)
 }
 // u()
