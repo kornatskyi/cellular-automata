@@ -85,7 +85,8 @@ class GameOfLife {
   cells: Cell[] = []
   renderer: Renderer
 
-  private numberOfCells = 10
+  private numberOfCells = 100
+
   constructor(renderer: Renderer) {
     this.renderer = renderer
     for (let i = 0; i < this.numberOfCells; i++) {
@@ -176,6 +177,8 @@ class GameOfLife {
   }
 
   update() {
+    this.renderer.newSize = { w: Math.sqrt(this.cells.length) * Cell.width, h: Math.sqrt(this.cells.length) * Cell.height }
+
     const nextState: Cell[] = new Array(this.cells.length)
     // Any live cell with fewer than two live neighbours dies, as if by underpopulation.
     // Any live cell with two or three live neighbours lives on to the next generation.
@@ -217,7 +220,7 @@ class GameOfLife {
       }
     })
 
-    genCSV(twoFramesArray(this.cells, nextState))
+    // genCSV(twoFramesArray(this.cells, nextState))
     // Swap cells with nextState for the next tick
     this.cells = nextState
   }
@@ -229,7 +232,8 @@ class GameOfLife {
 }
 
 const GOL = new GameOfLife(new Renderer())
-
+// Init canvas size
+GOL.renderer.newSize = { w: (Math.sqrt(GOL.cells.length)) * Cell.width, h: Math.sqrt(GOL.cells.length) * Cell.height }
 GOL.start()
 
 const u = () => {

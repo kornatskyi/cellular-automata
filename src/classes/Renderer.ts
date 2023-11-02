@@ -12,6 +12,7 @@ export class Renderer {
   canvas: HTMLCanvasElement
   canvasContainer: HTMLElement
   ctx: CanvasRenderingContext2D
+  newSize: { w: number; h: number } | undefined
 
   private renderingState = RenderingState.STOP
 
@@ -71,8 +72,13 @@ export class Renderer {
   // Recursive function which is responsible for rendering all DrawElements to canvas
   render() {
     if (this.renderingState === RenderingState.START) {
-      this.canvas.width = this.canvasContainer.offsetWidth
-      this.canvas.height = this.canvasContainer.offsetHeight
+      if (this.newSize) {
+        this.canvas.width = this.newSize.w
+        this.canvas.height = this.newSize.h
+      } else {
+        this.canvas.width = this.canvasContainer.offsetWidth
+        this.canvas.height = this.canvasContainer.offsetHeight
+      }
 
       this.thingsToDraw?.forEach((element) => {
         element.draw(this.ctx)
