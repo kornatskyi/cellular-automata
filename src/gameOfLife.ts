@@ -72,11 +72,24 @@ function conwaysGameOfLifeControlPanel(GOL: GameOfLife) {
   // *** Add control panel ***
   const cP = document.getElementById('control-panel')
   if (cP) {
-    const iButton = cP.appendChild(document.createElement('button'))
-    iButton.textContent = 'Update'
-    iButton.onclick = () => {
-      GOL.update()
-      GOL.renderer.thingsToDraw = GOL.cells
+    // Update button
+    const iButton = document.getElementById('update-button')
+    if (iButton) {
+      iButton.onclick = () => {
+        GOL.update()
+        GOL.renderer.thingsToDraw = GOL.cells
+      }
+    }
+    // Cells number range
+    // !TODO: unfinished
+    const iRange = document.getElementById('cells-number-range')
+    if (iRange) {
+      iRange.oninput = (event) => {
+        const sliderValue = document.getElementById('sliderValue')
+        if (sliderValue) {
+          sliderValue.textContent = (event.target as HTMLInputElement).value
+        }
+      }
     }
   }
 }
@@ -233,7 +246,7 @@ class GameOfLife {
 
 const GOL = new GameOfLife(new Renderer())
 // Init canvas size
-GOL.renderer.newSize = { w: (Math.sqrt(GOL.cells.length)) * Cell.width, h: Math.sqrt(GOL.cells.length) * Cell.height }
+GOL.renderer.newSize = { w: Math.sqrt(GOL.cells.length) * Cell.width, h: Math.sqrt(GOL.cells.length) * Cell.height }
 GOL.start()
 
 const u = () => {

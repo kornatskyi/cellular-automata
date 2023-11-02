@@ -18,7 +18,13 @@
         <a href="/">Cellular Automata</a>
         <a href="/game.html">Game</a>
     </div>
-    <div id="control-panel" style="position: absolute;"></div>
+    <div id="control-panel" style="position: absolute;">
+        <button type="button" id="update-button">
+            Update
+        </button>
+        <input type="range" min="0" max="100" value="20" id="cells-number-range">
+        <span id="sliderValue">20</span>
+    </div>
     <main id="automata">
         <div id="canvas-container"></div>
     </main>
